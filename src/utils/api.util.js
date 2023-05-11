@@ -7,9 +7,10 @@ export const addAuthHeader = () => {
 
 export const api = async(method, url, payload = null) => {
   try {
+    const urlSearchParams = new URLSearchParams(payload || {})
     const axiosPayload = {
       method,
-      url,
+      url: `${url}${urlSearchParams.size !== 0 ? `?${urlSearchParams.toString()}` : ''}`,
     }
     if (payload) axiosPayload.data = payload;
     const response = await axios(axiosPayload)

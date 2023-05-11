@@ -1,5 +1,11 @@
 <template>
-  <VSearchDropdownVue name="Chọn Nơi Sửa" :listItems="requestRepairPlaceArray" placeholder="Tìm nơi sửa" />
+  <VSearchDropdownVue
+    name="Chọn Nơi Sửa"
+    :listItems="requestRepairPlaceArray"
+    placeholder="Tìm nơi sửa"
+    @change="handleChange"
+    :value="value"
+  />
 </template>
 
 <script>
@@ -11,7 +17,17 @@ export default defineComponent({
     requestRepairPlaceArray: {
       type: Array,
     },
+    value: {
+      type: String,
+    },
   },
+  methods: {
+    handleChange(value) {
+      this.$emit("update:value", value);
+      this.$emit("change", value);
+    },
+  },
+  emits: ["update:value", "change"],
 });
 </script>
 

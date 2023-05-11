@@ -64,6 +64,7 @@ export default defineComponent({
   position: absolute;
   border: 2px solid lightgray;
   max-width: 100%;
+  background-color: white;
 }
 
 input {

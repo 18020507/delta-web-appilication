@@ -1,5 +1,11 @@
 <template>
-  <VSearchDropdownVue name="Chọn ngày" :listItems="requestDateArray" placeholder="Tìm Ngày Tạo" />
+  <VSearchDropdownVue
+    name="Chọn ngày"
+    :listItems="requestDateArray"
+    placeholder="Tìm Ngày Tạo"
+    @change="handleChange"
+    :value="value"
+  />
 </template>
 
 <script>
@@ -11,7 +17,17 @@ export default defineComponent({
     requestDateArray: {
       type: Array,
     },
+    value: {
+      type: String,
+    },
   },
+  methods: {
+    handleChange(value) {
+      this.$emit("update:value", value);
+      this.$emit("change", value);
+    },
+  },
+  emits: ["update:value", "change"],
 });
 </script>
 

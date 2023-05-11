@@ -1,5 +1,11 @@
 <template>
-  <VSearchDropdownVue name="Chọn Biển Số" :listItems="requestPlateArray" placeholder="Tìm biển số" />
+  <VSearchDropdownVue
+    name="Chọn Biển Số"
+    :listItems="requestPlateArray"
+    placeholder="Tìm biển số"
+    @change="handleChange"
+    :value="value"
+  />
 </template>
 
 <script>
@@ -10,8 +16,18 @@ export default defineComponent({
   props: {
     requestPlateArray: {
       type: Array,
+      value: {
+        type: String,
+      },
     },
   },
+  methods: {
+    handleChange(value) {
+      this.$emit("update:value", value);
+      this.$emit("change", value);
+    },
+  },
+  emits: ["update:value", "change"],
 });
 </script>
 

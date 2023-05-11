@@ -1,5 +1,11 @@
 <template>
-  <VSearchDropdownVue name="Chọn Lái Xe" :listItems=requestDriverArray placeholder="Tìm lái xe" />
+  <VSearchDropdownVue
+    name="Chọn Lái Xe"
+    :listItems="requestDriverArray"
+    placeholder="Tìm lái xe"
+    @change="handleChange"
+    :value="value"
+  />
 </template>
 
 <script>
@@ -11,7 +17,17 @@ export default defineComponent({
     requestDriverArray: {
       type: Array,
     },
+    value: {
+      type: String,
+    },
   },
+  methods: {
+    handleChange(value) {
+      this.$emit("update:value", value);
+      this.$emit("change", value);
+    },
+  },
+  emits: ["update:value", "change"],
 });
 </script>
 

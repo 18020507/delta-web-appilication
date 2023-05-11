@@ -1,5 +1,11 @@
 <template>
-  <VSearchDropdownVue name="Chọn Trạng Thái" :listItems="requestStatusArray" placeholder="Tìm trạng thái" />
+  <VSearchDropdownVue
+    name="Chọn Trạng Thái"
+    :listItems="requestStatusArray"
+    placeholder="Tìm trạng thái"
+    @change="handleChange"
+    :value="value"
+  />
 </template>
 
 <script>
@@ -11,7 +17,17 @@ export default defineComponent({
     requestStatusArray: {
       type: Array,
     },
+    value: {
+      type: String,
+    },
   },
+  methods: {
+    handleChange(value) {
+      this.$emit("update:value", value);
+      this.$emit("change", value);
+    },
+  },
+  emits: ["update:value", "change"],
 });
 </script>
 

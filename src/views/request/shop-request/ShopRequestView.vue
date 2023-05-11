@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import { getRequest } from "@/api/request/request";
 import { defineComponent } from "vue";
 import TableView from "../components/TableView.vue";
 import SortDate from "./components/SortDate.vue";
@@ -22,17 +23,25 @@ export default defineComponent({
   components: { TableView, SortDate },
   data() {
     return {
-      listShopRequest: [
-        {
-          createdAt: "10/2022",
-          requestName: "abc",
-          driverName: "abc",
-          truckPlate: "abc",
-          repairPlace: "abc",
-          requestStatus: "pending",
-        },
-      ],
+      listShopRequest: [],
     };
+  },
+  async mounted() {
+    const getListShopRequest = await getRequest({
+      request_type: "repair_shop",
+      page_size: 10,
+      page: 1,
+      sort_by: "id",
+      order: "desc",
+    });
+    this.listShopRequest = getListShopRequest.data.data.items?.map((item) => ({
+      createdAt: item.created_at,
+      requestName: item.request_name,
+      driverName: item.driver_name,
+      truckPlate: item.truck_plate,
+      repairPlace: item.repair_place,
+      requestStatus: item.request_status,
+    }));
   },
 });
 </script>

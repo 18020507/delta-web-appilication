@@ -4,7 +4,11 @@
       <th>
         <div class="table-title">Ngày tạo</div>
         <div class="table-filter">
-          <SelectSearchDate :requestDateArray="uniqueDates" />
+          <SelectSearchDate
+            :requestDateArray="uniqueDates"
+            v-model:value="form.date"
+            @change="handleChange"
+          />
         </div>
       </th>
       <th>
@@ -13,25 +17,41 @@
       <th>
         <div class="table-title">Tên Lái Xe</div>
         <div class="table-filter">
-          <SelectSearchDriver :requestDriverArray="uniqueDriverNames" />
+          <SelectSearchDriver
+            :requestDriverArray="uniqueDriverNames"
+            v-model:value="form.driver"
+            @change="handleChange"
+          />
         </div>
       </th>
       <th>
         <div class="table-title">Biển Số</div>
         <div class="table-filter">
-          <SelectSearchPlate :requestPlateArray="uniquePlates" />
+          <SelectSearchPlate
+            :requestPlateArray="uniquePlates"
+            v-model:value="form.plate"
+            @change="handleChange"
+          />
         </div>
       </th>
       <th>
         <div class="table-title">Nơi Sửa</div>
         <div class="table-filter">
-          <SelectSearchRepairPlace :requestRepairPlaceArray="uniqueRepairPlaces" />
+          <SelectSearchRepairPlace
+            :requestRepairPlaceArray="uniqueRepairPlaces"
+            v-model:value="form.repair"
+            @change="handleChange"
+          />
         </div>
       </th>
       <th>
         <div class="table-title">Trạng Thái</div>
         <div class="table-filter">
-          <SelectSearchStatus :requestStatusArray="uniqueStatuses" />
+          <SelectSearchStatus
+            :requestStatusArray="uniqueStatuses"
+            v-model:value="form.status"
+            @change="handleChange"
+          />
         </div>
       </th>
     </tr>
@@ -63,31 +83,23 @@ export default defineComponent({
   },
   props: {
     tableData: Array,
+    uniqueDates: Array,
+    uniqueDriverNames: Array,
+    uniquePlates: Array,
+    uniqueRepairPlaces: Array,
+    uniqueStatuses: Array,
   },
   data() {
     return {
-      uniqueDates: [
-        { label: "10-03-2023", value: "10-03-2023" },
-        { label: "10-04-2023", value: "10-04-2023" },
-      ],
-      uniqueDriverNames: [
-        { label: "Nguyen Van A", value: "Nguyen Van A" },
-        { label: "Nguyen Van B", value: "Nguyen Van B" },
-      ],
-      uniquePlates: [
-        { label: "15R-000.01", value: "15R-000.01" },
-        { label: "15R-000.02", value: "15R-000.02" },
-      ],
-      uniqueRepairPlaces: [
-        { label: "Bắc Ninh", value: "Bắc Ninh" },
-        { label: "Hải Phòng", value: "Hải Phòng" },
-      ],
-      uniqueStatuses: [
-        { label: "Đang chờ xử lý", value: "Đang chờ xử lý" },
-        { label: "Hoàn thành", value: "Hoàn thành" },
-      ],
+      form: { date: "", driver: "", plate: "", repair: "", status: "" },
     };
   },
+  methods: {
+    handleChange() {
+      this.$emit("submit", this.form);
+    },
+  },
+  emits: ["submit", "change"],
 });
 </script>
 
