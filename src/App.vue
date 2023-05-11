@@ -1,26 +1,31 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app">
+    <VNavbar v-if="this.$route.fullPath != '/login' && this.$route.fullPath != '/register'" />
+    <div class="main-content">
+      <VSidebar v-if="this.$route.fullPath != '/login' && this.$route.fullPath != '/register'" />
+      <router-view />
+    </div>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import VNavbar from "./components/VNavbar.vue";
+import VSidebar from "./components/VSidebar.vue";
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  name: "app",
+  components: { VNavbar, VSidebar },
+};
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+<style scoped>
+
+.main-content {
+  background-color: #f1f3f5;
+  display: flex;
+  flex-direction: row;
+}
+
+* {
+  font-family: 'IBM Plex Sans', sans-serif;
 }
 </style>
