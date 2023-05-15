@@ -2,7 +2,7 @@
   <section class="dropdown-wrapper">
     <div @click="isVisible = !isVisible" class="selected-item">
       <font-awesome-icon icon="fa-solid fa-filter" />
-      <span>{{ name }}</span>
+      <span>{{ name || "Chọn tìm kiếm" }}</span>
       <font-awesome-icon
         icon="fa-solid fa-chevron-up"
         :class="isVisible ? 'dropdown' : ''"
@@ -13,8 +13,13 @@
       <input v-model="searchQuery" type="text" :placeholder="placeholder" />
       <div class="options">
         <ul>
-          <li v-for="item in listItems" :key="item.value" :value="item.value">
-            {{ item.value }}
+          <li
+            v-for="item in listItems"
+            @click="() => handleChange(item.value)"
+            :key="item.value"
+            :value="item.value"
+          >
+            {{ item.label }}
           </li>
         </ul>
       </div>
@@ -33,12 +38,30 @@ export default defineComponent({
       isVisible: false,
     };
   },
+  methods: {
+    handleChange: function (value) {
+      this.$emit("change", value);
+      this.$emit("update:value", value);
+      this.isVisible = false;
+    },
+  },
+  emits: ["change", "upadate:value"],
+  computed: {
+    name: function () {
+      if (!this.value) return undefined;
+      return (
+        this.listItems.find((item) => item.value === this.value)?.label ||
+        this.value
+      );
+    },
+  },
   props: {
-    name: {
+    value: {
       type: String,
     },
     listItems: {
       type: Array,
+      default: () => [],
     },
     placeholder: {
       type: String,

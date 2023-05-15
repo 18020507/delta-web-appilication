@@ -16,9 +16,9 @@ export default defineComponent({
   props: {
     requestPlateArray: {
       type: Array,
-      value: {
-        type: String,
-      },
+    },
+    value: {
+      type: String,
     },
   },
   methods: {

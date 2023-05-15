@@ -9,39 +9,28 @@
       </div>
     </div>
     <div class="table">
-      <TableView :tableData="listShopRequest" />
+      <TableView :isDateAsc="isDateAsc" requestType="repair_shop" />
     </div>
   </div>
 </template>
 
 <script>
-import { getRequest } from "@/api/request/request";
 import { defineComponent } from "vue";
 import TableView from "../components/TableView.vue";
 import SortDate from "./components/SortDate.vue";
+
 export default defineComponent({
   components: { TableView, SortDate },
   data() {
     return {
+      isDateAsc: true,
       listShopRequest: [],
+      uniqueDates: [],
+      uniqueDriverNames: [],
+      uniquePlates: [],
+      uniqueRepairPlaces: [],
+      uniqueStatuses: [],
     };
-  },
-  async mounted() {
-    const getListShopRequest = await getRequest({
-      request_type: "repair_shop",
-      page_size: 10,
-      page: 1,
-      sort_by: "id",
-      order: "desc",
-    });
-    this.listShopRequest = getListShopRequest.data.data.items?.map((item) => ({
-      createdAt: item.created_at,
-      requestName: item.request_name,
-      driverName: item.driver_name,
-      truckPlate: item.truck_plate,
-      repairPlace: item.repair_place,
-      requestStatus: item.request_status,
-    }));
   },
 });
 </script>

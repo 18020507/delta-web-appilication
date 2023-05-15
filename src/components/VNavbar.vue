@@ -111,6 +111,7 @@ export default defineComponent({
   justify-content: space-between;
   background-color: #ffffff;
   border: 1px solid #ececec;
+  box-sizing: border-box;
 }
 
 .navbar-right {
