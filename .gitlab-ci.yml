@@ -53,5 +53,5 @@ deploy:
     script:
         - chmod og= $ID_RSA
         - apk update && apk add openssh-client
-        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sh docker-hieu/docker/deploy.sh $CI_COMMIT_BRANCH $GITLAB_TOKEN $CI_REGISTRY $SERVICE_NAME $IMAGE_NAME"
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sh docker-hieu/docker/deploy.sh $CI_COMMIT_BRANCH $GITLAB_CI_TOKEN $CI_REGISTRY $SERVICE_NAME $IMAGE_NAME"
 
