@@ -9,16 +9,26 @@
 </template>
 
 <script>
+import { getLicensePlate } from "@/api/request/request";
 import VSearchDropdownVue from "@/components/VSearchDropdown.vue";
 import { defineComponent } from "vue";
 export default defineComponent({
   components: { VSearchDropdownVue },
+  async created() {
+    const res_license_plate = await getLicensePlate();
+    this.requestPlateArray = res_license_plate.data.data?.map((item) => ({
+      label: item.truck_license_plate,
+      value: item.truck_id,
+    }));
+  },
+  data() {
+    return {
+      requestPlateArray: [],
+    };
+  },
   props: {
-    requestPlateArray: {
-      type: Array,
-      value: {
-        type: String,
-      },
+    value: {
+      type: String,
     },
   },
   methods: {

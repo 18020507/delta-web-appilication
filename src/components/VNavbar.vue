@@ -1,7 +1,7 @@
 <template>
   <div class="navBar">
     <div class="sideBar-head">
-      <router-link to="/home" style="display:flex">
+      <router-link to="/home" style="display: flex">
         <div>
           <img
             src="../assets/logo-delta.png"
@@ -34,8 +34,11 @@
       </div>
       <div class="user-info" ref="menu">
         <div class="icon-user-head" @click="toggleMenu">
-          <img src="../assets/user.png" class="user-avatar" />
-          <div class="user-name">Roland</div>
+          <img
+            :src="avatar_path || require('@/assets/default-avatar.jpg')"
+            class="user-avatar"
+          />
+          <div class="user-name">{{ username }}</div>
           <div v-show="isMenuVisible" class="user-menu">
             <ul>
               <li>
@@ -59,6 +62,7 @@
 </template>
 
 <script>
+import { getAccountDetail } from "@/api/account-management/account-management";
 import { defineComponent } from "vue";
 
 export default defineComponent({
@@ -67,15 +71,16 @@ export default defineComponent({
       isMenuVisible: false,
       isNotiVisible: false,
       notiCount: 5,
+      avatar_path: "",
+      username: "",
     };
   },
-  mounted() {
-    document.addEventListener("click", this.closeMenuOrNoti);
-  },
-  beforeUnmount() {
-    document.removeEventListener("click", this.closeMenuOrNoti);
-  },
   methods: {
+    async handleFetch() {
+      const res = await getAccountDetail();
+      this.username = res.data.data.user_name;
+      this.avatar_path = res.data.data.avatar;
+    },
     toggleMenu() {
       this.isMenuVisible = !this.isMenuVisible;
       if (this.isNotiVisible === true) {
@@ -91,13 +96,23 @@ export default defineComponent({
     closeMenuOrNoti(event) {
       const menu = this.$refs.menu;
       const noti = this.$refs.noti;
-      if (!menu.contains(event.target)) {
-        this.isMenuVisible = false;
-      }
-      if (!noti.contains(event.target)) {
-        this.isNotiVisible = false;
+
+      if (event && event.target) {
+        if (!menu.contains(event.target)) {
+          this.isMenuVisible = false;
+        }
+        if (!noti.contains(event.target)) {
+          this.isNotiVisible = false;
+        }
       }
     },
+  },
+  async mounted() {
+    await this.handleFetch();
+    document.addEventListener("click", this.closeMenuOrNoti);
+  },
+  beforeUnmount() {
+    document.removeEventListener("click", this.closeMenuOrNoti);
   },
 });
 </script>
@@ -111,6 +126,7 @@ export default defineComponent({
   justify-content: space-between;
   background-color: #ffffff;
   border: 1px solid #ececec;
+  box-sizing: border-box;
 }
 
 .navbar-right {
