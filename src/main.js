@@ -16,7 +16,8 @@ import {
   faBell,
   faPencil,
   faPlus,
-  faRotate
+  faRotate,
+  faEye
 } from "@fortawesome/free-solid-svg-icons";
 import VueCharts from "vue-echarts";
 import router from "./router";
@@ -41,7 +42,8 @@ library.add(
   faBell,
   faPencil,
   faPlus,
-  faRotate
+  faRotate,
+  faEye
 );
 import App from "./App.vue";
 import { addAuthHeader } from "./utils/api.util";

@@ -14,7 +14,7 @@
       <div class="options">
         <ul>
           <li
-            v-for="item in listItems"
+            v-for="item in filteredListItems"
             @click="() => handleChange(item.value)"
             :key="item.value"
             :value="item.value"
@@ -31,6 +31,18 @@
 import { defineComponent } from "vue";
 
 export default defineComponent({
+  props: {
+    value: {
+      type: String,
+    },
+    listItems: {
+      type: Array,
+      default: () => [],
+    },
+    placeholder: {
+      type: String,
+    },
+  },
   data() {
     return {
       searchQuery: "",
@@ -45,7 +57,7 @@ export default defineComponent({
       this.isVisible = false;
     },
   },
-  emits: ["change", "upadate:value"],
+  emits: ["change", "update:value"],
   computed: {
     name: function () {
       if (!this.value) return undefined;
@@ -54,17 +66,9 @@ export default defineComponent({
         this.value
       );
     },
-  },
-  props: {
-    value: {
-      type: String,
-    },
-    listItems: {
-      type: Array,
-      default: () => [],
-    },
-    placeholder: {
-      type: String,
+    filteredListItems: function () {
+      const regex = new RegExp(this.searchQuery, "i");
+      return this.listItems.filter((item) => regex.test(item.label));
     },
   },
 });
@@ -72,6 +76,7 @@ export default defineComponent({
 
 <style scoped>
 .dropdown-wrapper {
+  font-weight: 100;
   position: relative;
   margin: 0 auto;
 }

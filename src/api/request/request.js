@@ -5,8 +5,17 @@ export const getRequest = async (payload) => {
   return result;
 };
 
+export const getDriverName = async () => {
+  const result = await api("get", "/api/v1/driver_name");
+  return result;
+};
 
-// import axios from "axios";
-// export const getRequest = async (payload) => {
-//   return await axios.get("/api/v1/request", payload);
-// };
+export const getLicensePlate = async () => {
+  const result = await api("get", "/api/v1/license_plate");
+  return result;
+};
+
+export const getRequestDetail = async (request_id) => {
+  const result = await api("get", `/api/v1/request_detail/${request_id}`);
+  return result;
+};

@@ -5,7 +5,7 @@
     </div>
     <div class="table-function">
       <div class="sort">
-        <SortDate />
+        <SortDate @change="handleSortDateChange" />
       </div>
     </div>
     <div class="table">
@@ -23,13 +23,13 @@ export default defineComponent({
   data() {
     return {
       isDateAsc: true,
-      listDriverRequest: [],
-      uniqueDates: [],
-      uniqueDriverNames: [],
-      uniquePlates: [],
-      uniqueRepairPlaces: [],
-      uniqueStatuses: [],
     };
+  },
+  methods: {
+    handleSortDateChange(value) {
+      console.log(value)
+      // this.isDateAsc = value;
+    },
   },
 });
 </script>

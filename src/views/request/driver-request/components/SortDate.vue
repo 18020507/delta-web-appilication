@@ -1,5 +1,5 @@
 <template>
-  <VDropdown :options="options" />
+  <VDropdown :options="options" @change="handleChange" />
 </template>
 
 <script>
@@ -10,11 +10,18 @@ export default defineComponent({
   data() {
     return {
       options: [
-        { label: "Ngày tạo giảm dần", value: "date-descending" },
-        { label: "Ngày tạo tăng dần", value: "date-ascending" },
+        { label: "Ngày tạo giảm dần", value: "desc" },
+        { label: "Ngày tạo tăng dần", value: "asc" },
       ],
     };
   },
+  methods: {
+    handleChange(value) {
+      this.$emit("update:value", value);
+      this.$emit("change", value);
+    },
+  },
+  emits: ["update:value", "change"],
 });
 </script>
 

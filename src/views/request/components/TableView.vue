@@ -5,9 +5,9 @@
         <th>
           <div class="table-title">Ngày tạo</div>
           <div class="table-filter">
-            <SelectSearchDate
-              :requestDateArray="filterOptions.uniqueDates"
-              v-model:value="form.request_date"
+            <input
+              type="date"
+              v-model="form.request_date"
               @change="handleChange"
             />
           </div>
@@ -19,7 +19,6 @@
           <div class="table-title">Tên Lái Xe</div>
           <div class="table-filter">
             <SelectSearchDriver
-              :requestDriverArray="filterOptions.uniqueDriverNames"
               v-model:value="form.driver_id"
               @change="handleChange"
             />
@@ -29,8 +28,7 @@
           <div class="table-title">Biển Số</div>
           <div class="table-filter">
             <SelectSearchPlate
-              :requestPlateArray="filterOptions.uniquePlates"
-              v-model:value="form.truck_id"
+              v-model:value="this.form.truck_id"
               @change="handleChange"
             />
           </div>
@@ -55,6 +53,7 @@
             />
           </div>
         </th>
+        <th class="minimize-column">Chi tiết</th>
       </tr>
       <tr v-for="item in tableData" :key="item.id">
         <td>{{ item.createdAt }}</td>
@@ -63,14 +62,31 @@
         <td>{{ item.truckPlate }}</td>
         <td>{{ item.repairPlace }}</td>
         <td>{{ item.requestStatus }}</td>
+        <td>
+          <font-awesome-icon
+            icon="fa-solid fa-eye"
+            @click="openPopUp(item.id)"
+          />
+        </td>
       </tr>
     </table>
-    <vue-awesome-paginate
-      :total-items="100"
-      :items-per-page="5"
-      :max-pages-shown="5"
-      v-model="currentPage"
-    />
+
+    <div class="pagination">
+      <button :disabled="page === 1" @click="changePage(page - 1)">
+        Previous
+      </button>
+      <span>Page {{ page }} of {{ totalPages }}</span>
+      <button :disabled="page === totalPages" @click="changePage(page + 1)">
+        Next
+      </button>
+    </div>
+
+    <div v-if="showPopup" class="popup">
+      <div class="popup-content">
+        <PopUpRequestDetail :requestId="requestId" />
+        <button @click="showPopup = false">Close</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -79,21 +95,19 @@ import { defineComponent } from "vue";
 
 import { getRequest } from "@/api/request/request";
 
-import SelectSearchDate from "./SelectSearchDate.vue";
 import SelectSearchDriver from "./SelectSearchDriver.vue";
 import SelectSearchStatus from "./SelectSearchStatus.vue";
 import SelectSearchRepairPlace from "./SelectSearchRepairPlace.vue";
 import SelectSearchPlate from "./SelectSearchPlate.vue";
-import VueAwesomePaginate from "vue-awesome-paginate";
+import PopUpRequestDetail from "./PopUpRequestDetail.vue";
 
 export default defineComponent({
   components: {
-    SelectSearchDate,
     SelectSearchDriver,
     SelectSearchStatus,
     SelectSearchRepairPlace,
     SelectSearchPlate,
-    VueAwesomePaginate,
+    PopUpRequestDetail,
   },
   props: {
     isDateAsc: {
@@ -107,6 +121,8 @@ export default defineComponent({
   },
   data() {
     return {
+      showPopup: false,
+      requestId: 0,
       currentPage: 1,
       tableData: [],
       form: {
@@ -116,13 +132,11 @@ export default defineComponent({
         request_place: undefined,
         request_status: undefined,
       },
+      totalItems: 0,
       page: 1,
       page_size: 10,
-      sort_by: "id",
+      sort_by: "created_at",
       filterOptions: {
-        uniqueDates: [],
-        uniqueDriverNames: [],
-        uniquePlates: [],
         uniqueRepairPlaces: [
           {
             label: "Bắc Ninh",
@@ -143,23 +157,22 @@ export default defineComponent({
         ],
         uniqueStatuses: [
           {
-            label: "Pending",
+            label: "Chờ xử lý",
             value: "pending",
           },
           {
-            label: "Finish",
+            label: "Đang xử lý",
+            value: "processing",
+          },
+          {
+            label: "Hoàn thành",
             value: "finish",
           },
         ],
       },
     };
   },
-  computed: {},
-
   methods: {
-    clickCallback(pageNum) {
-      console.log(pageNum);
-    },
     async handleFetch() {
       const payload = {
         request_type: this.requestType,
@@ -183,6 +196,7 @@ export default defineComponent({
       const res = await getRequest(payload);
 
       this.tableData = res.data.data.items?.map((item) => ({
+        id: item.id,
         createdAt: item.created_at,
         requestName: item.request_name,
         driverName: item.driver_name,
@@ -190,13 +204,29 @@ export default defineComponent({
         repairPlace: item.repair_place,
         requestStatus: item.request_status,
       }));
+      this.totalItems = res.data.data.total_pages.total_items;
+    },
+    async changePage(newPage) {
+      this.page = newPage;
+      await this.handleFetch();
     },
     async handleChange() {
       await this.handleFetch();
     },
+    openPopUp(requestId) {
+      this.requestId = requestId;
+      this.showPopup = true;
+    },
   },
   async mounted() {
     await this.handleFetch();
+  },
+  computed: {
+    totalPages() {
+      const totalPage = Math.ceil(this.totalItems / this.page_size);
+
+      return totalPage;
+    },
   },
 });
 </script>
@@ -225,6 +255,14 @@ select {
   margin: 5px 0px 5px 0px;
 }
 
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
 .table-head {
   background-color: lightgreen;
 }
@@ -235,5 +273,27 @@ select {
 
 .table-title {
   margin-top: 10px;
+}
+
+.minimize-column {
+  width: 70px;
+}
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+.popup-content {
+  background-color: #fff;
+  padding: 20px;
 }
 </style>
