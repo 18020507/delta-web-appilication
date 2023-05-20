@@ -1,0 +1,57 @@
+image: docker:20.10.16-dind
+
+variables:
+    SERVICE_NAME: delta-fe
+    NAMESPACE: ${SERVICE_NAME}-${CI_COMMIT_BRANCH}
+    IMAGE_NAME: ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/${CI_COMMIT_BRANCH}
+    IMAGE_TAG: ${CI_COMMIT_SHORT_SHA}
+    CACHE_FALLBACK_KEY: fallback-key
+
+cache:
+    - key:
+          files:
+              - package.json
+      paths:
+          - node_modules/
+    - key: $CI_COMMIT_REF_SLUG
+      paths:
+          - dist
+
+stages:
+    - build
+    - package
+    - deploy
+
+node-build:
+    stage: build
+    only:
+        - develop
+    image: node:16-alpine
+    script:
+        - yarn
+        - yarn build:${CI_COMMIT_BRANCH}
+
+docker-package:
+    stage: package
+    only:
+        - develop
+    tags:
+        - amd64   
+    before_script:
+        - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    script:
+        - docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+        - docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+        - docker push ${IMAGE_NAME}:latest
+        - docker rmi ${IMAGE_NAME}:${IMAGE_TAG}
+
+deploy:
+    image: alpine:latest
+    stage: deploy
+    only:
+        - develop
+    script:
+        - chmod og= $ID_RSA
+        - apk update && apk add openssh-client
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sh delta/docker/deploy.sh $CI_COMMIT_BRANCH $GITLAB_CI_TOKEN $CI_REGISTRY $SERVICE_NAME $IMAGE_NAME"
+
