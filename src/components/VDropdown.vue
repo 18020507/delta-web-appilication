@@ -1,5 +1,9 @@
 <template>
-  <select class="select" @change="handleChange">
+  <select
+    class="select"
+    :value="value"
+    @change="handleChange"
+  >
     <option v-for="item in options" :key="item.value" :value="item.value">
       {{ item.label }}
     </option>
@@ -19,25 +23,27 @@ export default defineComponent({
       type: String,
     },
   },
+  methods: {
+    handleChange(event) {
+      this.$emit('update:value', event.target.value)
+      this.$emit('change', event.target.value)
+    },
+  },
+  emits: ["update:value", "change"]
 });
 </script>
 
 <style scoped>
 .select {
   text-align: center;
-  font-size: 14px;
-  font-weight: 700;
-  border-radius: 5px;
-  padding: 10px 25px;
-  background-color: #d9d9d9;
+  font-weight: bold;
+  padding: 0px 25px;
 }
 
 option {
   background-color: white;
   color: black;
   text-align: center;
-  font-size: 14px;
-  font-weight: 700;
- 
+  font-weight: bold;
 }
 </style>

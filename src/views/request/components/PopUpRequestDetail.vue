@@ -20,17 +20,22 @@
       <div v-if="repairPlace" class="request-summary-item">
         <b>Nơi Sửa:</b> {{ repairPlace }}
       </div>
+      <div v-if="appointmentDate" class="request-summary-item">
+        <b>Ngày Hẹn:</b> {{ appointmentDate }}
+      </div>
+      <div v-if="feedback" class="request-summary-item">
+        <b>Đánh giá từ lái xe:</b> {{ feedback }}
+      </div>
+      <div v-if="rejectReason" class="request-summary-item">
+        <b>Lý do từ chối:</b> {{ rejectReason }}
+      </div>
     </div>
     <div class="request-driver">
-      <div v-if="isDriverRequest">
-        <h4>Yêu cầu từ lái xe {{ driverName }}</h4>
-      </div>
-      <div v-if="!isDriverRequest">
-        <h4>Yêu cầu đến lái xe {{ driverName }}</h4>
-      </div>
+      <h4>Yêu cầu từ lái xe {{ driverName }}</h4>
       <div class="driver-detail">
         <div class="driver-avatar">
-          <img src="../../../assets/user.png" />
+          <img v-if="driverAvatar" :src="driverAvatar" />
+          <img v-else src="../../../assets/default-avatar.jpg" />
         </div>
         <div class="driver-information">
           <div class="driver-information-item">
@@ -46,7 +51,8 @@
       <h4>Thông tin xe</h4>
       <div class="truck-detail">
         <div class="truck-avatar">
-          <img src="../../../assets/user.png" />
+          <img v-if="truckAvatar" :src="truckAvatar" />
+          <img v-else src="../../../assets/default-avatar.jpg" />
         </div>
         <div class="truck-information">
           <div class="truck-information-item">Biển số: {{ truckPlate }}</div>
@@ -67,20 +73,79 @@
     <div class="request-image">
       <h4>Hình ảnh hiện trường</h4>
       <div class="image-container">
-        <img src="https://picsum.photos/500" class="field-image" />
-        <img src="https://picsum.photos/500" class="field-image" />
-        <img src="https://picsum.photos/500" class="field-image" />
-        <img src="https://picsum.photos/500" class="field-image" />
+        <img
+          v-for="image in list_scene_image"
+          :src="image"
+          class="field-image"
+          :key="image"
+        />
       </div>
+    </div>
+    <div
+      v-if="showListButtonFunction && requestStatus === REQUEST_STATUS.PENDING"
+      class="list-button-function"
+    >
+      <button class="accept-button" @click="handleAccept">Phê Duyệt</button>
+      <button class="reject-button" @click="handleReject">Hủy</button>
+    </div>
+
+    <div v-if="!showAcceptForm" class="accept-form-container">
+      <div class="accept-form">
+        <div>
+          <h4>Địa điểm sửa chữa</h4>
+          <SelectRepairPlace v-model:value="chooseRepairPlace" />
+        </div>
+        <div>
+          <h4>Mức độ khẩn cấp</h4>
+          <SelectRequestLevel v-model:value="chooseRequestLevel" />
+        </div>
+        <div>
+          <h4>Ngày hẹn</h4>
+          <input v-model="chooseAppointmentDate" type="date" />
+        </div>
+      </div>
+      <div class="accept-form-button-container">
+        <button class="accept-form-button" @click="handleAcceptRequest">
+          Cập nhật yêu cầu
+        </button>
+      </div>
+    </div>
+
+    <div v-if="!showRejectForm" class="reject-form-container">
+      <div class="reject-form">
+        <h4>Lý Do Hủy</h4>
+        <textarea v-model="rejectForm" cols="30" rows="10"></textarea>
+      </div>
+      <div class="accept-form-button-container">
+        <button class="accept-form-button" @click="handleRejectRequest">
+          Cập nhật yêu cầu
+        </button>
+      </div>
+    </div>
+
+    <div
+      v-if="
+        showListButtonFunction && requestStatus === REQUEST_STATUS.PROCESSING
+      "
+      class="list-button-function"
+    >
+      <button class="accept-button" @click="handleFinish">Hoàn thành</button>
     </div>
   </div>
 </template>
 
 <script>
-import { getRequestDetail } from "@/api/request/request";
+import {
+  getRequestDetail,
+  getSceneImage,
+  updateRequest,
+} from "@/api/request/request";
+import SelectRequestLevel from "./SelectRequestLevel.vue";
+import SelectRepairPlace from "./SelectRepairPlace.vue";
 import {
   REPAIR_PLACE,
   REPAIR_PLACE_VN,
+  REQUEST_IMAGE,
   REQUEST_STATUS,
   REQUEST_STATUS_VN,
   REQUEST_TYPE,
@@ -94,6 +159,10 @@ export default defineComponent({
       required: true,
     },
   },
+  components: {
+    SelectRepairPlace,
+    SelectRequestLevel,
+  },
   data() {
     return {
       requestName: "",
@@ -102,6 +171,9 @@ export default defineComponent({
       requestLevel: "",
       requestCreatedAt: "",
       repairPlace: "",
+      appointmentDate: "",
+      feedback: "",
+      rejectReason: "",
       driverName: "",
       driverPhoneNumber: "",
       driverAddress: "",
@@ -112,6 +184,17 @@ export default defineComponent({
       locationLatitude: "",
       locationLongitude: "",
       isDriverRequest: true,
+      driverAvatar: "",
+      truckAvatar: "",
+      list_scene_image: [],
+      showListButtonFunction: true,
+      showAcceptForm: true,
+      showRejectForm: true,
+      chooseRepairPlace: "",
+      chooseRequestLevel: "",
+      chooseAppointmentDate: "",
+      rejectForm: "",
+      REQUEST_STATUS: REQUEST_STATUS,
     };
   },
   methods: {
@@ -139,6 +222,9 @@ export default defineComponent({
       } else if (res.data.data.repair_place == REPAIR_PLACE.EMERGENCY) {
         this.repairPlace = REPAIR_PLACE_VN.EMERGENCY;
       }
+      this.appointmentDate = res.data.data.appointment_date;
+      this.feedback = res.data.data.feedback;
+      this.rejectReason = res.data.data.reject_reason;
       if (res.data.data.type == REQUEST_TYPE.REPAIR_SHOP) {
         this.isDriverRequest = false;
         this.driverName = res.data.data.driver_name;
@@ -147,14 +233,73 @@ export default defineComponent({
         this.driverName = res.data.data.created_by_name;
         this.driverPhoneNumber = res.data.data.created_by_phone_number;
       }
-
+      this.driverAvatar = res.data.data.create_avatar;
       this.driverAddress = res.data.data.created_by_address;
+      this.truckAvatar = res.data.data.truck_avatar;
       this.truckPlate = res.data.data.truck_plate;
       this.truckSize = res.data.data.truck_size;
       this.truckManufacturer = res.data.data.truck_manufacturer;
       this.truckDateRegistration = res.data.data.truck_date_registration;
       this.locationLatitude = res.data.data.location_latitude;
       this.locationLongitude = res.data.data.location_longitude;
+
+      const payload = {
+        request_id: this.requestId,
+        image_type: REQUEST_IMAGE.SCENE_IMAGE,
+      };
+      const scene_image = await getSceneImage(payload);
+      this.list_scene_image = scene_image.data.data;
+    },
+    handleAccept() {
+      this.showListButtonFunction = false;
+      this.showAcceptForm = false;
+    },
+    handleReject() {
+      this.showListButtonFunction = false;
+      this.showRejectForm = false;
+    },
+    async handleAcceptRequest() {
+      const appointmentDateValue = this.chooseAppointmentDate;
+      const repairPlaceValue = this.chooseRepairPlace;
+      const requestLevelValue = this.chooseRequestLevel;
+      const payload = {
+        request_id: this.requestId,
+        appointment_date: appointmentDateValue,
+        request_level: requestLevelValue,
+        repair_place: repairPlaceValue,
+        status: REQUEST_STATUS.PROCESSING,
+      };
+
+      const res_update = await updateRequest(payload);
+      if (res_update.status == 200) {
+        console.log("success");
+        this.$emit("updateRequest", res_update.status);
+      }
+    },
+    async handleRejectRequest() {
+      const rejectReason = this.rejectForm;
+      const payload = {
+        request_id: this.requestId,
+        reject_reason: rejectReason,
+        status: REQUEST_STATUS.REJECT,
+      };
+
+      const res_update = await updateRequest(payload);
+      if (res_update.status == 200) {
+        console.log("success");
+        this.$emit("updateRequest", res_update.status);
+      }
+    },
+    async handleFinish() {
+      const payload = {
+        request_id: this.requestId,
+        status: REQUEST_STATUS.FINISH,
+      };
+      const res_update = await updateRequest(payload);
+      if (res_update.status == 200) {
+        console.log("success");
+        this.$emit("updateRequest", res_update.status);
+      }
     },
   },
   async mounted() {
@@ -194,6 +339,12 @@ export default defineComponent({
 .driver-avatar {
   margin-left: 50px;
 }
+
+.driver-avatar img {
+  width: 136px;
+  height: auto;
+  border-radius: 50%;
+}
 .driver-information-item {
   margin-top: 10px;
   margin-bottom: 10px;
@@ -209,6 +360,12 @@ export default defineComponent({
 
 .truck-avatar {
   margin-left: 50px;
+}
+
+.truck-avatar img {
+  width: 136px;
+  height: auto;
+  border-radius: 50%;
 }
 .truck-information {
   margin-left: 150px;
@@ -237,5 +394,71 @@ export default defineComponent({
 
 .field-image {
   margin-bottom: 10px;
+}
+
+.list-button-function {
+  margin-top: 20px;
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 50px;
+}
+
+.accept-button {
+  background-color: lightgreen;
+  width: 150px;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  font-weight: bold;
+}
+
+.reject-button {
+  background-color: lightcoral;
+  width: 150px;
+  padding: 10px;
+  border: none;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+.accept-form-container {
+  margin-bottom: 50px;
+  margin-top: 20px;
+}
+
+.reject-form-container {
+  margin-bottom: 50px;
+  margin-top: 20px;
+}
+
+.reject-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.reject-form textarea {
+  resize: none;
+  margin-right: 15px;
+}
+
+.accept-form {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+.accept-form-button-container {
+  display: flex;
+  justify-content: center;
+}
+
+.accept-form-button {
+  margin-top: 50px;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  font-weight: bold;
+  background-color: lightgreen;
 }
 </style>

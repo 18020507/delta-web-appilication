@@ -33,6 +33,7 @@
 
 <script>
 import { createDriverAccount } from "@/api/driver-management/driverManagement";
+import { useNotification } from "@kyvg/vue3-notification";
 import { defineComponent } from "vue";
 
 export default defineComponent({
@@ -83,6 +84,13 @@ export default defineComponent({
       if (response.success) {
         this.$emit("registration-success");
         console.log("Tạo tài khoản thành công");
+        const notification = useNotification();
+        notification.notify({
+          title: "Tạo tài khoản thành công",
+          text: `Đã tạo tài khoản thành công cho lái xe ${this.driverName}, mật khẩu ${this.password}`,
+          type: "success",
+          duration: 3000,
+        });
       }
     },
   },

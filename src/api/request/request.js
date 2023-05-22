@@ -19,3 +19,13 @@ export const getRequestDetail = async (request_id) => {
   const result = await api("get", `/api/v1/request_detail/${request_id}`);
   return result;
 };
+
+export const getSceneImage = async (payload) => {
+  const result = await api("get", "/api/v1/image", payload);
+  return result;
+};
+
+export const updateRequest = async (payload) => {
+  const result = await api("put", "/api/v1/request", payload);
+  return result;
+};

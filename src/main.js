@@ -1,8 +1,6 @@
 import { createApp, h } from "vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import VueAwesomePaginate from "vue-awesome-paginate";
-import "vue-awesome-paginate/dist/style.css";
 import axios from "axios";
 import {
   faUser,
@@ -48,6 +46,8 @@ library.add(
 import App from "./App.vue";
 import { addAuthHeader } from "./utils/api.util";
 
+import Notifications from '@kyvg/vue3-notification'
+
 const app = createApp({
   render: () => h(App),
 })
@@ -55,5 +55,5 @@ const app = createApp({
   .component("v-chart", VueCharts);
 
 app.use(router);
-app.use(VueAwesomePaginate);
+app.use(Notifications)
 app.mount("#app");

@@ -31,3 +31,7 @@ export const REPAIR_PLACE_VN = {
   "COOPERATE_SHOP": "gara đối tác",
   "EMERGENCY": "Cứu Hộ"
 }
+
+export const REQUEST_IMAGE = {
+  "SCENE_IMAGE": 'scene_image'
+}

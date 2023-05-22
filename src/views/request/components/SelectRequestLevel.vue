@@ -1,17 +1,27 @@
 <template>
-  <VDropdown :options="options" @change="handleChange" :value="value" />
+  <VDropdownVue
+    :options="requestRequestPlaceArray"
+    @change="handleChange"
+    :value="value"
+  />
 </template>
 
 <script>
 import { defineComponent } from "vue";
-import VDropdown from "@/components/VDropdown.vue";
+import VDropdownVue from "@/components/VDropdown.vue";
 export default defineComponent({
-  components: { VDropdown },
+  components: { VDropdownVue },
   data() {
     return {
-      options: [
-        { label: "Ngày tạo giảm dần", value: "desc" },
-        { label: "Ngày tạo tăng dần", value: "asc" },
+      requestRequestPlaceArray: [
+        {
+          label: "Cao",
+          value: "high",
+        },
+        {
+          label: "Thấp",
+          value: "low",
+        },
       ],
     };
   },

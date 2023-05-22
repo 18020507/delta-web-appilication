@@ -48,7 +48,8 @@
 </template>
 
 <script>
-import { login } from "@/api/login/login";
+import { getUserDetail, login } from "@/api/login/login";
+import { useNotification } from "@kyvg/vue3-notification";
 import { defineComponent } from "vue";
 export default defineComponent({
   data() {
@@ -66,6 +67,16 @@ export default defineComponent({
         password,
       });
       if (response.success) {
+        const notification = useNotification();
+        notification.notify({
+          title: "Login Success",
+          text: "You have successfully logged in!",
+          type: "success",
+          duration: 3000,
+        });
+        const userDetailResponse = await getUserDetail();
+        localStorage.setItem("user_avatar", userDetailResponse.data.data.avatar);
+        localStorage.setItem("username", userDetailResponse.data.data.user_name);
         this.$router.push("home");
       }
     },

@@ -36,7 +36,6 @@ import {
   GridComponent,
 } from "echarts/components";
 import VChart, { THEME_KEY } from "vue-echarts";
-import { getUserDetail } from "@/api/login/login";
 
 use([
   CanvasRenderer,
@@ -184,10 +183,6 @@ export default defineComponent({
         ],
       },
     };
-  },
-  async mounted() {
-    const userDetails = await getUserDetail();
-    console.log({ userDetails });
   },
 });
 </script>

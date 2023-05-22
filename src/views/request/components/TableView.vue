@@ -83,7 +83,15 @@
 
     <div v-if="showPopup" class="popup">
       <div class="popup-content">
-        <PopUpRequestDetail :requestId="requestId" />
+        <template v-if="requestType === 'driver'">
+          <PopUpRequestDetail
+            :requestId="requestId"
+            @updateRequest="handleUpdateRequest"
+          />
+        </template>
+        <template v-else-if="requestType === 'repair_shop'">
+          <PopUpRequestRepairShopDetail :requestId="requestId" />
+        </template>
         <button @click="showPopup = false">Close</button>
       </div>
     </div>
@@ -100,6 +108,7 @@ import SelectSearchStatus from "./SelectSearchStatus.vue";
 import SelectSearchRepairPlace from "./SelectSearchRepairPlace.vue";
 import SelectSearchPlate from "./SelectSearchPlate.vue";
 import PopUpRequestDetail from "./PopUpRequestDetail.vue";
+import PopUpRequestRepairShopDetail from "./PopUpRequestRepairShopDetail.vue";
 
 export default defineComponent({
   components: {
@@ -108,6 +117,7 @@ export default defineComponent({
     SelectSearchRepairPlace,
     SelectSearchPlate,
     PopUpRequestDetail,
+    PopUpRequestRepairShopDetail,
   },
   props: {
     isDateAsc: {
@@ -216,6 +226,12 @@ export default defineComponent({
     openPopUp(requestId) {
       this.requestId = requestId;
       this.showPopup = true;
+    },
+    async handleUpdateRequest(statusCode) {
+      if (statusCode === 200) {
+        this.showPopup = false;
+        await this.handleFetch();
+      }
     },
   },
   async mounted() {

@@ -48,6 +48,12 @@
                 </router-link>
               </li>
               <li>
+                <router-link to="">
+                  <font-awesome-icon icon="fa-solid fa-rotate" />
+                  Đổi mật khẩu
+                </router-link>
+              </li>
+              <li>
                 <router-link to="/login">
                   <font-awesome-icon icon="fa-solid fa-right-from-bracket" />
                   Đăng xuất
@@ -98,10 +104,10 @@ export default defineComponent({
       const noti = this.$refs.noti;
 
       if (event && event.target) {
-        if (!menu.contains(event.target)) {
+        if (menu && !menu.contains(event.target)) {
           this.isMenuVisible = false;
         }
-        if (!noti.contains(event.target)) {
+        if (noti && !noti.contains(event.target)) {
           this.isNotiVisible = false;
         }
       }
