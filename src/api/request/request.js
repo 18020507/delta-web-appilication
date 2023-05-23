@@ -29,3 +29,8 @@ export const updateRequest = async (payload) => {
   const result = await api("put", "/api/v1/request", payload);
   return result;
 };
+
+export const createRequest = async (payload) => {
+  const result = await api("post", "/api/v1/request", payload);
+  return result;
+};

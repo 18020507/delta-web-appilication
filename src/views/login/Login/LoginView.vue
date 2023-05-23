@@ -49,9 +49,15 @@
 
 <script>
 import { getUserDetail, login } from "@/api/login/login";
+import { useUserStore } from "@/store/userStore";
 import { useNotification } from "@kyvg/vue3-notification";
 import { defineComponent } from "vue";
 export default defineComponent({
+  setup() {
+    const userStore = useUserStore();
+
+    return { userStore };
+  },
   data() {
     return {
       username: "",
@@ -75,8 +81,7 @@ export default defineComponent({
           duration: 3000,
         });
         const userDetailResponse = await getUserDetail();
-        localStorage.setItem("user_avatar", userDetailResponse.data.data.avatar);
-        localStorage.setItem("username", userDetailResponse.data.data.user_name);
+        this.userStore.setUserInfo(userDetailResponse.data.data);
         this.$router.push("home");
       }
     },

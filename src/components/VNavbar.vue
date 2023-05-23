@@ -68,10 +68,15 @@
 </template>
 
 <script>
-import { getAccountDetail } from "@/api/account-management/account-management";
+import { useUserStore } from "@/store/userStore";
 import { defineComponent } from "vue";
 
 export default defineComponent({
+  setup() {
+    const userStore = useUserStore();
+
+    return { userStore };
+  },
   data() {
     return {
       isMenuVisible: false,
@@ -81,12 +86,14 @@ export default defineComponent({
       username: "",
     };
   },
+  async created() {
+    if (!this.userStore.getUserInfo()) {
+      this.$router.go("/home");
+    }
+    this.avatar_path = this.userStore.getUserInfo().avatar
+    this.username = this.userStore.getUserInfo().user_name
+  },
   methods: {
-    async handleFetch() {
-      const res = await getAccountDetail();
-      this.username = res.data.data.user_name;
-      this.avatar_path = res.data.data.avatar;
-    },
     toggleMenu() {
       this.isMenuVisible = !this.isMenuVisible;
       if (this.isNotiVisible === true) {
@@ -114,7 +121,6 @@ export default defineComponent({
     },
   },
   async mounted() {
-    await this.handleFetch();
     document.addEventListener("click", this.closeMenuOrNoti);
   },
   beforeUnmount() {

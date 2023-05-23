@@ -52,13 +52,19 @@
 
 <script>
 import {
-  getAccountDetail,
   updateAccount,
   updateAvatar,
 } from "@/api/account-management/account-management";
+import { useUserStore } from "@/store/userStore";
+import { useNotification } from "@kyvg/vue3-notification";
 import { defineComponent } from "vue";
 
 export default defineComponent({
+  setup() {
+    const userStore = useUserStore();
+
+    return { userStore };
+  },
   data() {
     return {
       username: "",
@@ -73,18 +79,20 @@ export default defineComponent({
       },
     };
   },
+  async created() {
+    if (!this.userStore.getUserInfo()) {
+      this.$router.go("/home");
+    }
+    this.avatar_path = this.userStore.getUserInfo().avatar;
+    this.username = this.userStore.getUserInfo().user_name;
+    this.user_id = this.userStore.getUserInfo().id;
+    this.userForm.fullName = this.userStore.getUserInfo().full_name;
+    this.userForm.position = this.userStore.getUserInfo().role_name;
+    this.userForm.birthYear = this.userStore.getUserInfo().dateOfBirth;
+    this.userForm.hometown = this.userStore.getUserInfo().homeTown;
+    this.userForm.address = this.userStore.getUserInfo().address;
+  },
   methods: {
-    async handleFetch() {
-      const res = await getAccountDetail();
-      this.username = res.data.data.user_name;
-      this.user_id = res.data.data.id;
-      this.avatar_path = res.data.data.avatar;
-      this.userForm.fullName = res.data.data.full_name;
-      this.userForm.position = res.data.data.role_name;
-      this.userForm.birthYear = res.data.data.dateOfBirth;
-      this.userForm.hometown = res.data.data.homeTown;
-      this.userForm.address = res.data.data.address;
-    },
     async handleSubmit() {
       const update_res = await updateAccount({
         user_id: this.user_id,
@@ -94,8 +102,28 @@ export default defineComponent({
         hometown: this.userForm.hometown,
       });
       if (update_res.status == 200) {
-        console.log("success");
-        await this.handleFetch();
+        const notification = useNotification();
+        notification.notify({
+          title: "Update Success",
+          text: "Cập nhật tài khoản thành công!",
+          type: "success",
+          duration: 3000,
+        });
+        const new_user_info = {
+          id: this.user_id,
+          full_name: this.userForm.fullName,
+          user_name: this.userStore.getUserInfo().user_name,
+          email: this.userStore.getUserInfo().email,
+          phone_number: this.userStore.getUserInfo().phone_number,
+          status: this.userStore.getUserInfo().status,
+          role_name: this.userStore.getUserInfo().role_name,
+          description: this.userStore.getUserInfo().description,
+          dateOfBirth: this.userForm.birthYear,
+          homeTown: this.userForm.hometown,
+          address: this.userForm.address,
+          avatar: this.userStore.getUserInfo().avatar,
+        };
+        this.userStore.setUserInfo(new_user_info);
       }
     },
     async handleAvatarChange(event) {
@@ -110,13 +138,32 @@ export default defineComponent({
 
       const update_avatar_res = await updateAvatar(payload);
       if (update_avatar_res.status == 200) {
-        console.log("success");
-        await this.handleFetch();
+        console.log(update_avatar_res.data.data);
+        this.avatar_path = update_avatar_res.data.data;
+        const notification = useNotification();
+        notification.notify({
+          title: "Update Success",
+          text: "Cập nhật ảnh đại diện thành công!",
+          type: "success",
+          duration: 3000,
+        });
+        const new_user_info = {
+          id: this.user_id,
+          full_name: this.userStore.getUserInfo().fullName,
+          user_name: this.userStore.getUserInfo().user_name,
+          email: this.userStore.getUserInfo().email,
+          phone_number: this.userStore.getUserInfo().phone_number,
+          status: this.userStore.getUserInfo().status,
+          role_name: this.userStore.getUserInfo().role_name,
+          description: this.userStore.getUserInfo().description,
+          dateOfBirth: this.userStore.getUserInfo().birthYear,
+          homeTown: this.userStore.getUserInfo().homeTown,
+          address: this.userStore.getUserInfo().address,
+          avatar: this.avatar_path,
+        };
+        this.userStore.setUserInfo(new_user_info);
       }
     },
-  },
-  async mounted() {
-    await this.handleFetch();
   },
 });
 </script>

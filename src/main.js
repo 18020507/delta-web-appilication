@@ -19,6 +19,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import VueCharts from "vue-echarts";
 import router from "./router";
+import { createPinia } from "pinia";
+
+const pinia = createPinia();
 
 axios.defaults.baseURL = `${process.env.VUE_APP_BASE_API_URL}`;
 addAuthHeader();
@@ -56,4 +59,5 @@ const app = createApp({
 
 app.use(router);
 app.use(Notifications)
+app.use(pinia);
 app.mount("#app");
