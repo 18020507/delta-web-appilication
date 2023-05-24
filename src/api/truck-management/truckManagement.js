@@ -9,3 +9,8 @@ export const getTruckManagementFromTruckId = async (truck_id) => {
   const result = await api("get", `/api/v1/truck_management/${truck_id}`);
   return result;
 };
+
+export const getHandoverManagement = async (payload) => {
+  const result = await api("get", "/api/v1/truck_management", payload);
+  return result;
+};

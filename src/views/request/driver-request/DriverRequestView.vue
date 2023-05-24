@@ -5,11 +5,14 @@
     </div>
     <div class="table-function">
       <div class="sort">
-        <SortDate @change="handleSortDateChange" />
+        <select v-model="sortValue" @change="handleSortChange">
+          <option value="desc">Ngày tạo giảm dần</option>
+          <option value="asc">Ngày tạo tăng dần</option>
+        </select>
       </div>
     </div>
     <div class="table">
-      <TableView :isDateAsc="isDateAsc" requestType="driver" />
+      <TableView ref="tableRef" :sortValue="sortValue" requestType="driver" />
     </div>
   </div>
 </template>
@@ -17,18 +20,16 @@
 <script>
 import { defineComponent } from "vue";
 import TableView from "../components/TableView.vue";
-import SortDate from "./components/SortDate.vue";
 export default defineComponent({
-  components: { TableView, SortDate },
+  components: { TableView },
   data() {
     return {
-      isDateAsc: true,
+      sortValue: "desc",
     };
   },
   methods: {
-    handleSortDateChange(value) {
-      console.log(value)
-      // this.isDateAsc = value;
+    handleSortChange() {
+      this.$refs.tableRef?.handleFetch();
     },
   },
 });

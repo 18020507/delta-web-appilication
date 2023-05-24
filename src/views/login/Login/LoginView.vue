@@ -55,7 +55,6 @@ import { defineComponent } from "vue";
 export default defineComponent({
   setup() {
     const userStore = useUserStore();
-
     return { userStore };
   },
   data() {
@@ -81,8 +80,9 @@ export default defineComponent({
           duration: 3000,
         });
         const userDetailResponse = await getUserDetail();
+        console.log('13123');
         this.userStore.setUserInfo(userDetailResponse.data.data);
-        this.$router.push("home");
+        this.$router.push("/home");
       }
     },
   },

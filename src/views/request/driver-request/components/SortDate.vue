@@ -1,12 +1,15 @@
 <template>
-  <VDropdown :options="options" @change="handleChange" :value="value" />
+  <select :value="value" @change="handleChange">
+    <option v-for="item in options" :key="item.value" :value="item.value">
+      {{ item.label }}
+    </option>
+  </select>
 </template>
 
 <script>
 import { defineComponent } from "vue";
-import VDropdown from "@/components/VDropdown.vue";
 export default defineComponent({
-  components: { VDropdown },
+  components: {},
   data() {
     return {
       options: [
@@ -30,4 +33,17 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+select {
+  text-align: center;
+  font-weight: bold;
+  padding: 0px 25px;
+}
+
+option {
+  background-color: white;
+  color: black;
+  text-align: center;
+  font-weight: bold;
+}
+</style>

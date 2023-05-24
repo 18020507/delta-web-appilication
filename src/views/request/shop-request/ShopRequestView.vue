@@ -5,7 +5,10 @@
     </div>
     <div class="table-function">
       <div class="sort">
-        <SortDate />
+        <select v-model="sortValue" @change="handleSortChange">
+          <option value="desc">Ngày tạo giảm dần</option>
+          <option value="asc">Ngày tạo tăng dần</option>
+        </select>
       </div>
       <div class="create-request">
         <span>Tạo yêu cầu</span>
@@ -15,11 +18,15 @@
       </div>
     </div>
     <div class="table">
-      <TableView :isDateAsc="isDateAsc" requestType="repair_shop" />
+      <TableView
+        ref="tableRef"
+        :sortValue="sortValue"
+        requestType="repair_shop"
+      />
     </div>
     <div v-if="showPopup" class="popup">
       <div class="popup-content">
-        <PopupCreateRepairShopRequest @createRequest="handleCreateRequest"/>
+        <PopupCreateRepairShopRequest @createRequest="handleCreateRequest" />
         <button @click="showPopup = false">Close</button>
       </div>
     </div>
@@ -29,24 +36,27 @@
 <script>
 import { defineComponent } from "vue";
 import TableView from "../components/TableView.vue";
-import SortDate from "./components/SortDate.vue";
 import PopupCreateRepairShopRequest from "./components/PopupCreateRepairShopRequest.vue";
 
 export default defineComponent({
-  components: { TableView, SortDate, PopupCreateRepairShopRequest },
+  components: { TableView, PopupCreateRepairShopRequest },
   data() {
     return {
       showPopup: false,
-      isDateAsc: true,
+      sortValue: "desc",
     };
   },
   methods: {
     openPopUp() {
       this.showPopup = true;
     },
+    handleSortChange() {
+      this.$refs.tableRef?.handleFetch();
+    },
     async handleCreateRequest(statusCode) {
       if (statusCode === 200) {
         this.showPopup = false;
+        this.$refs.tableRef?.handleFetch();
       }
     },
   },

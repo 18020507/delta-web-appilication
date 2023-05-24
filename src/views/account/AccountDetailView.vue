@@ -80,10 +80,15 @@ export default defineComponent({
     };
   },
   async created() {
-    if (!this.userStore.getUserInfo()) {
-      this.$router.go("/home");
-    }
-    this.avatar_path = this.userStore.getUserInfo().avatar;
+    // if (!this.userStore.getUserInfo()) {
+    //   // this.$router.push("/login");
+    //   return;
+    // }
+    console.log(
+      "🚀 ~ file: AccountDetailView.vue:88 ~ created ~ this.userStore:",
+      this.userStore
+    );
+    this.avatar_path = this.userStore.getAvatar;
     this.username = this.userStore.getUserInfo().user_name;
     this.user_id = this.userStore.getUserInfo().id;
     this.userForm.fullName = this.userStore.getUserInfo().full_name;
@@ -121,9 +126,10 @@ export default defineComponent({
           dateOfBirth: this.userForm.birthYear,
           homeTown: this.userForm.hometown,
           address: this.userForm.address,
-          avatar: this.userStore.getUserInfo().avatar,
+          avatar: this.userStore.getAvatar,
         };
-        this.userStore.setUserInfo(new_user_info);
+
+        this.userStore.setUserAvatar(new_user_info);
       }
     },
     async handleAvatarChange(event) {
@@ -138,8 +144,15 @@ export default defineComponent({
 
       const update_avatar_res = await updateAvatar(payload);
       if (update_avatar_res.status == 200) {
-        console.log(update_avatar_res.data.data);
-        this.avatar_path = update_avatar_res.data.data;
+        if (
+          !update_avatar_res.data.data ||
+          !update_avatar_res.data.data.length
+        ) {
+          return;
+        }
+        const avatar = update_avatar_res.data.data[0];
+        this.avatar_path = avatar;
+        this.userStore.setUserAvatar(avatar);
         const notification = useNotification();
         notification.notify({
           title: "Update Success",
@@ -147,21 +160,6 @@ export default defineComponent({
           type: "success",
           duration: 3000,
         });
-        const new_user_info = {
-          id: this.user_id,
-          full_name: this.userStore.getUserInfo().fullName,
-          user_name: this.userStore.getUserInfo().user_name,
-          email: this.userStore.getUserInfo().email,
-          phone_number: this.userStore.getUserInfo().phone_number,
-          status: this.userStore.getUserInfo().status,
-          role_name: this.userStore.getUserInfo().role_name,
-          description: this.userStore.getUserInfo().description,
-          dateOfBirth: this.userStore.getUserInfo().birthYear,
-          homeTown: this.userStore.getUserInfo().homeTown,
-          address: this.userStore.getUserInfo().address,
-          avatar: this.avatar_path,
-        };
-        this.userStore.setUserInfo(new_user_info);
       }
     },
   },

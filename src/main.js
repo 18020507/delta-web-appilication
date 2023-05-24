@@ -15,21 +15,23 @@ import {
   faPencil,
   faPlus,
   faRotate,
-  faEye
+  faEye,
 } from "@fortawesome/free-solid-svg-icons";
 import VueCharts from "vue-echarts";
 import router from "./router";
-import { createPinia } from "pinia";
-
-const pinia = createPinia();
+import { createRouterGuard, createStateGuard } from "./router/guard";
+import App from "./App.vue";
+import { addAuthHeader } from "./utils/api.util";
+import Notifications from "@kyvg/vue3-notification";
+import { setupStore } from "@/store";
 
 axios.defaults.baseURL = `${process.env.VUE_APP_BASE_API_URL}`;
 addAuthHeader();
-if (localStorage.getItem("access_token")) {
-  axios.defaults.headers.common[
-    "Authorization"
-  ] = `Bearer ${localStorage.getItem("access_token")}`;
-}
+// if (localStorage.getItem("access_token")) {
+//   axios.defaults.headers.common[
+//     "Authorization"
+//   ] = `Bearer ${localStorage.getItem("access_token")}`;
+// }
 
 library.add(
   faLock,
@@ -46,10 +48,6 @@ library.add(
   faRotate,
   faEye
 );
-import App from "./App.vue";
-import { addAuthHeader } from "./utils/api.util";
-
-import Notifications from '@kyvg/vue3-notification'
 
 const app = createApp({
   render: () => h(App),
@@ -57,7 +55,11 @@ const app = createApp({
   .component("font-awesome-icon", FontAwesomeIcon)
   .component("v-chart", VueCharts);
 
+setupStore(app);
+
 app.use(router);
-app.use(Notifications)
-app.use(pinia);
+createRouterGuard(router);
+createStateGuard(router);
+
+app.use(Notifications);
 app.mount("#app");

@@ -1,21 +1,45 @@
 <template>
-  <VDropdown :options="options" />
+  <select :value="value" @change="handleChange">
+    <option v-for="item in options" :key="item.value" :value="item.value">
+      {{ item.label }}
+    </option>
+  </select>
 </template>
 
 <script>
 import { defineComponent } from "vue";
-import VDropdown from "@/components/VDropdown.vue";
 export default defineComponent({
-  components: { VDropdown },
+  components: {},
   data() {
     return {
       options: [
-        { label: "Ngày tạo giảm dần", value: "date-descending" },
-        { label: "Ngày tạo tăng dần", value: "date-ascending" },
+        { label: "Ngày tạo giảm dần", value: "desc" },
+        { label: "Ngày tạo tăng dần", value: "asc" },
       ],
     };
   },
+  methods: {
+    handleChange(value) {
+      console.log(value);
+      this.$emit("update:value", value);
+      this.$emit("change", value);
+    },
+  },
+  emits: ["update:value", "change"],
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+select {
+  text-align: center;
+  font-weight: bold;
+  padding: 0px 25px;
+}
+
+option {
+  background-color: white;
+  color: black;
+  text-align: center;
+  font-weight: bold;
+}
+</style>

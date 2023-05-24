@@ -120,8 +120,8 @@ export default defineComponent({
     PopUpRequestRepairShopDetail,
   },
   props: {
-    isDateAsc: {
-      type: Boolean,
+    sortValue: {
+      type: String,
       required: true,
     },
     requestType: {
@@ -189,7 +189,7 @@ export default defineComponent({
         page_size: this.page_size,
         page: this.page,
         sort_by: this.sort_by,
-        order: this.isDateAsc ? "asc" : "desc",
+        order: this.sortValue,
         request_date: this.form.request_date
           ? this.form.request_date
           : undefined,

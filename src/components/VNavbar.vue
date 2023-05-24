@@ -34,10 +34,7 @@
       </div>
       <div class="user-info" ref="menu">
         <div class="icon-user-head" @click="toggleMenu">
-          <img
-            :src="avatar_path || require('@/assets/default-avatar.jpg')"
-            class="user-avatar"
-          />
+          <img :src="avatar_path" class="user-avatar" />
           <div class="user-name">{{ username }}</div>
           <div v-show="isMenuVisible" class="user-menu">
             <ul>
@@ -54,7 +51,7 @@
                 </router-link>
               </li>
               <li>
-                <router-link to="/login">
+                <router-link to="/login" @click="handleLogout">
                   <font-awesome-icon icon="fa-solid fa-right-from-bracket" />
                   Đăng xuất
                 </router-link>
@@ -68,8 +65,11 @@
 </template>
 
 <script>
+import router from "@/router";
 import { useUserStore } from "@/store/userStore";
 import { defineComponent } from "vue";
+
+import defaultAvatar from "@/assets/default-avatar.jpg";
 
 export default defineComponent({
   setup() {
@@ -82,16 +82,21 @@ export default defineComponent({
       isMenuVisible: false,
       isNotiVisible: false,
       notiCount: 5,
-      avatar_path: "",
       username: "",
     };
   },
   async created() {
-    if (!this.userStore.getUserInfo()) {
-      this.$router.go("/home");
-    }
-    this.avatar_path = this.userStore.getUserInfo().avatar
-    this.username = this.userStore.getUserInfo().user_name
+    // if (!this.userStore.getUserInfo()) {
+    //   console.log('vao den day')
+    //   this.$router.push("/login");
+    //   return
+    // }
+    this.username = this.userStore.getUserInfo()?.user_name;
+  },
+  computed: {
+    avatar_path: function () {
+      return this.userStore.getAvatar || defaultAvatar;
+    },
   },
   methods: {
     toggleMenu() {
@@ -118,6 +123,10 @@ export default defineComponent({
           this.isNotiVisible = false;
         }
       }
+    },
+    handleLogout() {
+      localStorage.clear("access_token");
+      router.push("/login");
     },
   },
   async mounted() {

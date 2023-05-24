@@ -12,5 +12,5 @@ export const login = async (payload) => {
 export const getUserDetail = async () => {
   const result = await api("get", "/api/v1/user_detail");
 
-  return result;
+  return result
 };
