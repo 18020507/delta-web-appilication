@@ -5,12 +5,14 @@
       <th>Biển số</th>
       <th>Lái xe sở hữu</th>
       <th>Ghi Chú</th>
+      <th class="minimize-column">Chi Tiết</th>
     </tr>
     <tr v-for="item in tableData" :key="item.id">
       <td>{{ item.truckType }}</td>
       <td>{{ item.truckPlate }}</td>
-      <td>{{ item.driverOwn }}</td>
+      <td>{{ item.driver }}</td>
       <td>{{ item.note }}</td>
+      <td><font-awesome-icon icon="fa-solid fa-eye"></font-awesome-icon></td>
     </tr>
   </table>
   <div class="pagination">
@@ -53,10 +55,11 @@ export default defineComponent({
         truckId: item.truck_id,
         truckType: item.truck_type,
         truckPlate: item.truck_plate,
-        driverId: item.driver_id,
-        driverOwn: item.driver_name,
+        driver_id: item.driver.map((driver) => driver.driver_id),
+        driver: item.driver.map((driver) => driver.driver_name).join(", "),
         note: item.description,
       }));
+      console.log(this.tableData);
       this.totalItems = res.data.data.total_pages.total_items;
     },
     async changePage(newPage) {
@@ -105,5 +108,9 @@ table {
   align-items: center;
   margin-top: 20px;
   margin-bottom: 20px;
+}
+
+.minimize-column {
+  width: 70px;
 }
 </style>

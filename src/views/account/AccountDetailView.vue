@@ -84,10 +84,6 @@ export default defineComponent({
     //   // this.$router.push("/login");
     //   return;
     // }
-    console.log(
-      "🚀 ~ file: AccountDetailView.vue:88 ~ created ~ this.userStore:",
-      this.userStore
-    );
     this.avatar_path = this.userStore.getAvatar;
     this.username = this.userStore.getUserInfo().user_name;
     this.user_id = this.userStore.getUserInfo().id;
