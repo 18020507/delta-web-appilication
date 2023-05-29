@@ -17,12 +17,6 @@
         </th>
         <th>
           <div class="table-title">Tên Lái Xe</div>
-          <div class="table-filter">
-            <SelectSearchDriver
-              v-model:value="form.driver_id"
-              @change="handleChange"
-            />
-          </div>
         </th>
         <th>
           <div class="table-title">Biển Số</div>
@@ -83,18 +77,10 @@
 
     <div v-if="showPopup" class="popup">
       <div class="popup-content">
-        <template v-if="requestType === 'driver'">
-          <PopUpRequestDetail
-            :requestId="requestId"
-            @updateRequest="handleUpdateRequest"
-          />
-        </template>
-        <template v-else-if="requestType === 'repair_shop'">
-          <PopUpRequestRepairShopDetail
-            :requestId="requestId"
-            @updateRequest="handleUpdateRequest"
-          />
-        </template>
+        <PopUpRequestRepairShopDetail
+          :requestId="requestId"
+          @updateRequest="handleUpdateRequest"
+        />
         <button @click="showPopup = false">Close</button>
       </div>
     </div>
@@ -106,28 +92,21 @@ import { defineComponent } from "vue";
 
 import { getRequest } from "@/api/request/request";
 
-import SelectSearchDriver from "./SelectSearchDriver.vue";
-import SelectSearchStatus from "./SelectSearchStatus.vue";
-import SelectSearchRepairPlace from "./SelectSearchRepairPlace.vue";
-import SelectSearchPlate from "./SelectSearchPlate.vue";
-import PopUpRequestDetail from "./PopUpRequestDetail.vue";
-import PopUpRequestRepairShopDetail from "./PopUpRequestRepairShopDetail.vue";
+import SelectSearchStatus from "../../components/SelectSearchStatus.vue";
+import SelectSearchRepairPlace from "../../components/SelectSearchRepairPlace.vue";
+import SelectSearchPlate from "../../components/SelectSearchPlate.vue";
+import PopUpRequestRepairShopDetail from "../../components/PopUpRequestRepairShopDetail.vue";
+import { REQUEST_TYPE } from "@/utils/const";
 
 export default defineComponent({
   components: {
-    SelectSearchDriver,
     SelectSearchStatus,
     SelectSearchRepairPlace,
     SelectSearchPlate,
-    PopUpRequestDetail,
     PopUpRequestRepairShopDetail,
   },
   props: {
     sortValue: {
-      type: String,
-      required: true,
-    },
-    requestType: {
       type: String,
       required: true,
     },
@@ -140,7 +119,6 @@ export default defineComponent({
       tableData: [],
       form: {
         request_date: undefined,
-        driver_id: undefined,
         truck_id: undefined,
         request_place: undefined,
         request_status: undefined,
@@ -188,7 +166,7 @@ export default defineComponent({
   methods: {
     async handleFetch() {
       const payload = {
-        request_type: this.requestType,
+        request_type: REQUEST_TYPE.REPAIR_SHOP,
         page_size: this.page_size,
         page: this.page,
         sort_by: this.sort_by,
@@ -196,7 +174,6 @@ export default defineComponent({
         request_date: this.form.request_date
           ? this.form.request_date
           : undefined,
-        driver_id: this.form.driver_id ? this.form.driver_id : undefined,
         truck_id: this.form.truck_id ? this.form.truck_id : undefined,
         request_place: this.form.request_place
           ? this.form.request_place
@@ -212,7 +189,7 @@ export default defineComponent({
         id: item.id,
         createdAt: item.created_at,
         requestName: item.request_name,
-        driverName: item.driver_name,
+        driverName: item.driver.map((driver) => driver.driver_name).join(", "),
         truckPlate: item.license_plate,
         repairPlace: item.repair_place,
         requestStatus: item.request_status,

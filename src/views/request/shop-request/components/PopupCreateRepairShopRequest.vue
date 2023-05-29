@@ -64,6 +64,7 @@ import { getLicensePlate } from "@/api/request/request";
 import { getTruckManagementFromTruckId } from "@/api/truck-management/truckManagement";
 import { useUserStore } from "@/store/userStore";
 import { REQUEST_STATUS, REQUEST_TYPE } from "@/utils/const";
+import { useNotification } from "@kyvg/vue3-notification";
 import { defineComponent } from "vue";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.css";
@@ -122,6 +123,13 @@ export default defineComponent({
       };
       const res = await createRequest(payload);
       if (res.status == 200) {
+        const notification = useNotification();
+        notification.notify({
+          title: "Create Success",
+          text: "Tạo yêu cầu thành công!",
+          type: "success",
+          duration: 3000,
+        });
         this.$emit("createRequest", res.status);
       }
     },
@@ -141,6 +149,7 @@ export default defineComponent({
   flex-direction: column;
   margin-top: 20px;
   margin-bottom: 20px;
+  margin-right: 20px;
 }
 
 .request-item b {

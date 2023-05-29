@@ -18,10 +18,9 @@
       </div>
     </div>
     <div class="table">
-      <TableView
+      <TableRepairShopRequestView
         ref="tableRef"
         :sortValue="sortValue"
-        requestType="repair_shop"
       />
     </div>
     <div v-if="showPopup" class="popup">
@@ -35,11 +34,11 @@
 
 <script>
 import { defineComponent } from "vue";
-import TableView from "../components/TableView.vue";
+import TableRepairShopRequestView from "./components/TableRepairShopRequestView.vue";
 import PopupCreateRepairShopRequest from "./components/PopupCreateRepairShopRequest.vue";
 
 export default defineComponent({
-  components: { TableView, PopupCreateRepairShopRequest },
+  components: { TableRepairShopRequestView, PopupCreateRepairShopRequest },
   data() {
     return {
       showPopup: false,

@@ -12,16 +12,16 @@
       </div>
     </div>
     <div class="table">
-      <TableView ref="tableRef" :sortValue="sortValue" requestType="driver" />
+      <TableDriverRequestView ref="tableRef" :sortValue="sortValue" requestType="driver" />
     </div>
   </div>
 </template>
 
 <script>
 import { defineComponent } from "vue";
-import TableView from "../components/TableView.vue";
+import TableDriverRequestView from "./components/TableDriverRequestView.vue";
 export default defineComponent({
-  components: { TableView },
+  components: { TableDriverRequestView },
   data() {
     return {
       sortValue: "desc",

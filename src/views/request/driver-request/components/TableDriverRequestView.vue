@@ -83,18 +83,10 @@
 
     <div v-if="showPopup" class="popup">
       <div class="popup-content">
-        <template v-if="requestType === 'driver'">
-          <PopUpRequestDetail
-            :requestId="requestId"
-            @updateRequest="handleUpdateRequest"
-          />
-        </template>
-        <template v-else-if="requestType === 'repair_shop'">
-          <PopUpRequestRepairShopDetail
-            :requestId="requestId"
-            @updateRequest="handleUpdateRequest"
-          />
-        </template>
+        <PopUpRequestDetail
+          :requestId="requestId"
+          @updateRequest="handleUpdateRequest"
+        />
         <button @click="showPopup = false">Close</button>
       </div>
     </div>
@@ -106,12 +98,11 @@ import { defineComponent } from "vue";
 
 import { getRequest } from "@/api/request/request";
 
-import SelectSearchDriver from "./SelectSearchDriver.vue";
-import SelectSearchStatus from "./SelectSearchStatus.vue";
-import SelectSearchRepairPlace from "./SelectSearchRepairPlace.vue";
-import SelectSearchPlate from "./SelectSearchPlate.vue";
-import PopUpRequestDetail from "./PopUpRequestDetail.vue";
-import PopUpRequestRepairShopDetail from "./PopUpRequestRepairShopDetail.vue";
+import SelectSearchDriver from "../../components/SelectSearchDriver.vue";
+import SelectSearchStatus from "../../components/SelectSearchStatus.vue";
+import SelectSearchRepairPlace from "../../components/SelectSearchRepairPlace.vue";
+import SelectSearchPlate from "../../components/SelectSearchPlate.vue";
+import PopUpRequestDetail from "../../components/PopUpRequestDetail.vue";
 
 export default defineComponent({
   components: {
@@ -120,7 +111,6 @@ export default defineComponent({
     SelectSearchRepairPlace,
     SelectSearchPlate,
     PopUpRequestDetail,
-    PopUpRequestRepairShopDetail,
   },
   props: {
     sortValue: {

@@ -8,7 +8,7 @@
       <div class="request-summary-item">
         <b>Miêu Tả:</b> {{ requestDescription }}
       </div>
-      <div class="request-summary-item">
+      <div  v-if="requestStatus" class="request-summary-item">
         <b>Trạng Thái:</b> {{ requestStatus }}
       </div>
       <div v-if="requestLevel" class="request-summary-item">
@@ -82,7 +82,7 @@
       </div>
     </div>
     <div
-      v-if="showListButtonFunction && requestStatus === REQUEST_STATUS.PENDING"
+      v-if="showListButtonFunction && requestStatus == REQUEST_STATUS_VN.PENDING"
       class="list-button-function"
     >
       <button class="accept-button" @click="handleAccept">Phê Duyệt</button>
@@ -125,7 +125,7 @@
 
     <div
       v-if="
-        showListButtonFunction && requestStatus === REQUEST_STATUS.PROCESSING
+        showListButtonFunction && requestStatus == REQUEST_STATUS_VN.PROCESSING
       "
       class="list-button-function"
     >
@@ -151,6 +151,7 @@ import {
   REQUEST_TYPE,
 } from "@/utils/const";
 import { defineComponent } from "vue";
+import { useNotification } from "@kyvg/vue3-notification";
 
 export default defineComponent({
   props: {
@@ -194,7 +195,7 @@ export default defineComponent({
       chooseRequestLevel: "",
       chooseAppointmentDate: "",
       rejectForm: "",
-      REQUEST_STATUS: REQUEST_STATUS,
+      REQUEST_STATUS_VN: REQUEST_STATUS_VN,
     };
   },
   methods: {
@@ -272,7 +273,13 @@ export default defineComponent({
 
       const res_update = await updateRequest(payload);
       if (res_update.status == 200) {
-        console.log("success");
+        const notification = useNotification();
+        notification.notify({
+          title: "Update Success",
+          text: "Cập nhật yêu cầu thành công!",
+          type: "success",
+          duration: 3000,
+        });
         this.$emit("updateRequest", res_update.status);
       }
     },
