@@ -12,7 +12,11 @@
       </div>
     </div>
     <div class="table">
-      <TableDriverRequestView ref="tableRef" :sortValue="sortValue" requestType="driver" />
+      <TableDriverRequestView
+        ref="tableRef"
+        :sortValue="sortValue"
+        requestType="driver"
+      />
     </div>
   </div>
 </template>
@@ -47,5 +51,19 @@ export default defineComponent({
   display: flex;
   flex-direction: row;
   margin-bottom: 30px;
+}
+
+select {
+  text-align: center;
+  font-weight: bold;
+  padding: 10px 25px;
+  border-radius: 5px;
+}
+
+option {
+  background-color: white;
+  color: black;
+  text-align: center;
+  font-weight: bold;
 }
 </style>

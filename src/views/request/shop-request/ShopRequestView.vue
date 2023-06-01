@@ -18,10 +18,7 @@
       </div>
     </div>
     <div class="table">
-      <TableRepairShopRequestView
-        ref="tableRef"
-        :sortValue="sortValue"
-      />
+      <TableRepairShopRequestView ref="tableRef" :sortValue="sortValue" />
     </div>
     <div v-if="showPopup" class="popup">
       <div class="popup-content">
@@ -97,5 +94,19 @@ export default defineComponent({
 .popup-content {
   background-color: #fff;
   padding: 20px;
+}
+
+select {
+  text-align: center;
+  font-weight: bold;
+  padding: 10px 25px;
+  border-radius: 5px;
+}
+
+option {
+  background-color: white;
+  color: black;
+  text-align: center;
+  font-weight: bold;
 }
 </style>

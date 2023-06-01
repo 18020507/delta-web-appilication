@@ -1,22 +1,28 @@
 <template>
-  <VSearchDropdownVue
-    name="Chọn Lái Xe"
-    :listItems="requestDriverArray"
-    placeholder="Tìm lái xe"
-    @change="handleChange"
-    :value="value"
-  />
+  <multiselect
+    :options="requestDriverArray"
+    :close-on-select="true"
+    :clear-on-select="false"
+    placeholder="Lọc Lái Xe"
+    label="label"
+    track-by="label"
+    :show-labels="false"
+    :model-value="value"
+    @update:model-value="handleChange"
+  >
+  </multiselect>
 </template>
 
 <script>
+import Multiselect from "vue-multiselect";
+import "vue-multiselect/dist/vue-multiselect.css";
 import { getDriverName } from "@/api/request/request";
-import VSearchDropdownVue from "@/components/VSearchDropdown.vue";
 import { defineComponent } from "vue";
 export default defineComponent({
-  components: { VSearchDropdownVue },
+  components: { Multiselect },
   props: {
     value: {
-      type: String,
+      type: Map,
     },
   },
   data() {

@@ -1,9 +1,18 @@
 <template>
-  <div id="app">
-    <VNavbar v-if="this.$route.fullPath != '/login' && this.$route.fullPath != '/register'" />
+  <div class="app">
+    <VNavbar
+      v-if="
+        this.$route.fullPath != '/login' && this.$route.fullPath != '/register'
+      "
+    />
     <div class="main-content">
-      <notifications position="top center" :pauseOnHover=true />
-      <VSidebar v-if="this.$route.fullPath != '/login' && this.$route.fullPath != '/register'" />
+      <notifications position="top center" :pauseOnHover="true" />
+      <VSidebar
+        v-if="
+          this.$route.fullPath != '/login' &&
+          this.$route.fullPath != '/register'
+        "
+      />
       <router-view />
     </div>
   </div>
@@ -19,14 +28,19 @@ export default {
 </script>
 
 <style scoped>
-
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 .main-content {
   background-color: #f1f3f5;
   display: flex;
   flex-direction: row;
+  flex: 1;
 }
 
 * {
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 </style>

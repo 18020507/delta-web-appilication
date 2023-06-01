@@ -9,6 +9,7 @@
               type="date"
               v-model="form.request_date"
               @change="handleChange"
+              class="request-date"
             />
           </div>
         </th>
@@ -23,7 +24,7 @@
           <div class="table-filter">
             <SelectSearchPlate
               v-model:value="this.form.truck_id"
-              @change="handleChange"
+              @update:model-value="handleChange"
             />
           </div>
         </th>
@@ -31,9 +32,8 @@
           <div class="table-title">Nơi Sửa</div>
           <div class="table-filter">
             <SelectSearchRepairPlace
-              :requestRepairPlaceArray="filterOptions.uniqueRepairPlaces"
               v-model:value="form.request_place"
-              @change="handleChange"
+              @update:model-value="handleChange"
             />
           </div>
         </th>
@@ -41,9 +41,8 @@
           <div class="table-title">Trạng Thái</div>
           <div class="table-filter">
             <SelectSearchStatus
-              :requestStatusArray="filterOptions.uniqueStatuses"
               v-model:value="form.request_status"
-              @change="handleChange"
+              @update:model-value="handleChange"
             />
           </div>
         </th>
@@ -127,40 +126,6 @@ export default defineComponent({
       page: 1,
       page_size: 10,
       sort_by: "created_at",
-      filterOptions: {
-        uniqueRepairPlaces: [
-          {
-            label: "Bắc Ninh",
-            value: "BN",
-          },
-          {
-            label: "Hải Phòng",
-            value: "HP",
-          },
-          {
-            label: "Gara đối tác",
-            value: "cooperate-shop",
-          },
-          {
-            label: "Cứu hộ",
-            value: "emergency",
-          },
-        ],
-        uniqueStatuses: [
-          {
-            label: "Chờ xử lý",
-            value: "pending",
-          },
-          {
-            label: "Đang xử lý",
-            value: "processing",
-          },
-          {
-            label: "Hoàn thành",
-            value: "finish",
-          },
-        ],
-      },
     };
   },
   methods: {
@@ -174,13 +139,9 @@ export default defineComponent({
         request_date: this.form.request_date
           ? this.form.request_date
           : undefined,
-        truck_id: this.form.truck_id ? this.form.truck_id : undefined,
-        request_place: this.form.request_place
-          ? this.form.request_place
-          : undefined,
-        request_status: this.form.request_status
-          ? this.form.request_status
-          : undefined,
+        truck_id: this.form.truck_id?.value ?? undefined,
+        request_place: this.form.request_place?.value ?? undefined,
+        request_status: this.form.request_status?.value ?? undefined,
       };
 
       const res = await getRequest(payload);
@@ -271,6 +232,13 @@ select {
   margin-top: 10px;
 }
 
+.request-date {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  color: gray;
+  font-weight: bold;
+}
 .minimize-column {
   width: 70px;
 }

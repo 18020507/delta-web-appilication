@@ -23,11 +23,7 @@
         />
         <div v-show="isNotiVisible" class="noti-menu">
           <ul>
-            <li>Đăng kiểm xe X sắp hết hạn</li>
-            <li>Thay dầu máy phát 1</li>
-            <li>Thay dầu máy phát 2</li>
-            <li>Thay dầu máy phát 3</li>
-            <li>Thay dầu máy phát 4</li>
+            <li v-for="item in listNoti" :key="item.id">{{ item.message }}</li>
           </ul>
         </div>
         <div v-if="notiCount > 0" class="noti-count">{{ notiCount }}</div>
@@ -70,6 +66,8 @@ import { useUserStore } from "@/store/userStore";
 import { defineComponent } from "vue";
 
 import defaultAvatar from "@/assets/default-avatar.jpg";
+import { getNotification } from "@/api/home/home";
+import { useNotification } from "@kyvg/vue3-notification";
 
 export default defineComponent({
   setup() {
@@ -81,17 +79,18 @@ export default defineComponent({
     return {
       isMenuVisible: false,
       isNotiVisible: false,
-      notiCount: 5,
+      notiCount: null,
+      listNoti: [],
       username: "",
+      socket: null,
+      clientId: null,
+      recipientId: null,
     };
   },
   async created() {
-    // if (!this.userStore.getUserInfo()) {
-    //   console.log('vao den day')
-    //   this.$router.push("/login");
-    //   return
-    // }
     this.username = this.userStore.getUserInfo()?.user_name;
+    this.clientId = this.userStore.getUserInfo().id;
+    this.connectToWebSocket();
   },
   computed: {
     avatar_path: function () {
@@ -99,13 +98,50 @@ export default defineComponent({
     },
   },
   methods: {
+    connectToWebSocket() {
+      this.socket = new WebSocket(`ws://localhost:8000/ws/${this.clientId}`);
+
+      this.socket.onopen = () => {
+        console.log("connected");
+        this.connected = true;
+      };
+      this.socket.onmessage = (event) => {
+        console.log("new message");
+        this.notiCount += 1;
+        const notification = useNotification();
+        notification.notify({
+          title: "New Request",
+          text: event.data,
+          type: "success",
+          duration: 5000,
+        });
+      };
+      this.socket.onclose = () => {
+        console.log("closed");
+        this.connected = false;
+      };
+    },
+    async handleFetch() {
+      const res = await getNotification(this.userStore.getUserInfo().id);
+      this.listNoti = res.data.data?.map((item) => ({
+        id: item.id,
+        message: item.message,
+        status: item.status,
+        isRead: item.is_read,
+      }));
+    },
+    updateNotiCount() {
+      this.notiCount =
+        this.listNoti?.filter((item) => !item.isRead).length ?? 0;
+    },
     toggleMenu() {
       this.isMenuVisible = !this.isMenuVisible;
       if (this.isNotiVisible === true) {
         this.isNotiVisible = !this.isNotiVisible;
       }
     },
-    toggleNoti() {
+    async toggleNoti() {
+      await this.handleFetch()
       this.isNotiVisible = !this.isNotiVisible;
       if (this.isMenuVisible === true) {
         this.isMenuVisible = !this.isMenuVisible;
@@ -131,6 +167,8 @@ export default defineComponent({
   },
   async mounted() {
     document.addEventListener("click", this.closeMenuOrNoti);
+    await this.handleFetch();
+    this.updateNotiCount();
   },
   beforeUnmount() {
     document.removeEventListener("click", this.closeMenuOrNoti);

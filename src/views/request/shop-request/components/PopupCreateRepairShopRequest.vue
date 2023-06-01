@@ -81,8 +81,13 @@ export default defineComponent({
       requestTruck: "",
       requestTruckId: "",
       requestDriver: "",
-      requestDriverId: "",
+      requestDriverId: [],
+      requestReceiverId: [],
       options: [],
+      newMessage: "",
+      socket: null,
+      clientId: null,
+      recipientId: null,
     };
   },
   setup() {
@@ -95,17 +100,44 @@ export default defineComponent({
       label: item.truck_license_plate,
       value: item.truck_id,
     }));
+    this.clientId = this.userStore.getUserInfo().id;
+    this.connectToWebSocket();
   },
   methods: {
+    connectToWebSocket() {
+      this.socket = new WebSocket(`ws://localhost:8000/ws/${this.clientId}`);
+
+      this.socket.onopen = () => {
+        console.log("connected");
+        this.connected = true;
+      };
+
+      this.socket.onclose = () => {
+        console.log("closed");
+        this.connected = false;
+      };
+    },
+    sendMessage() {
+      if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+        console.log("WebSocket connection not established");
+        return;
+      }
+
+      const message = `${this.recipientId}|${this.message}`;
+      this.socket.send(message);
+    },
     async handleTruckChange(value) {
       const res = await getTruckManagementFromTruckId(value.value);
       const data = res.data.data;
       if (data.length > 0) {
+        this.requestDriverId = data.map((item) => item.driver_id);
+        this.requestReceiverId = data.map((item) => item.user_id);
         this.requestTruckId = data[0].truck_id;
-        this.requestDriver = data[0].driver_name;
-        this.requestDriverId = data[0].driver_id;
+        this.requestDriver = data.map((item) => item.driver_name).join(", ");
       } else {
         this.requestDriver = "";
+        this.requestDriverId = [];
+        this.requestTruckId = "";
       }
     },
     async handleCreateRequest() {
@@ -116,6 +148,7 @@ export default defineComponent({
         appointment_date: this.requestAppointmentDate,
         truck_id: this.requestTruckId,
         driver_id: this.requestDriverId,
+        receiver_id: this.requestReceiverId,
         description: this.requestDescription,
         request_level: this.requestLevel,
         status: REQUEST_STATUS.PENDING,
@@ -123,6 +156,11 @@ export default defineComponent({
       };
       const res = await createRequest(payload);
       if (res.status == 200) {
+        for (const driver of this.requestReceiverId) {
+          this.recipientId = driver;
+          this.message = "Bạn có yêu cầu mới từ xưởng";
+          this.sendMessage();
+        }
         const notification = useNotification();
         notification.notify({
           title: "Create Success",
@@ -162,7 +200,6 @@ export default defineComponent({
 
 .driver-truck-management {
   display: flex;
-  flex-direction: row;
   justify-content: space-around;
 }
 

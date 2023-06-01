@@ -1,19 +1,25 @@
 <template>
-  <VSearchDropdownVue
-    name="Chọn Biển Số"
-    :listItems="requestPlateArray"
-    placeholder="Tìm biển số"
-    @change="handleChange"
-    :value="value"
-  />
+  <multiselect
+    :options="requestPlateArray"
+    :close-on-select="true"
+    :clear-on-select="false"
+    placeholder="Lọc biển số"
+    label="label"
+    track-by="label"
+    :show-labels="false"
+    :model-value="value"
+    @update:model-value="handleChange"
+  >
+  </multiselect>
 </template>
 
 <script>
+import Multiselect from "vue-multiselect";
+import "vue-multiselect/dist/vue-multiselect.css";
 import { getLicensePlate } from "@/api/request/request";
-import VSearchDropdownVue from "@/components/VSearchDropdown.vue";
 import { defineComponent } from "vue";
 export default defineComponent({
-  components: { VSearchDropdownVue },
+  components: { Multiselect },
   async created() {
     const res_license_plate = await getLicensePlate();
     this.requestPlateArray = res_license_plate.data.data?.map((item) => ({
@@ -28,7 +34,7 @@ export default defineComponent({
   },
   props: {
     value: {
-      type: String,
+      type: Map,
     },
   },
   methods: {

@@ -5,7 +5,6 @@
       <th>Mã Nhân Viên</th>
       <th>Địa chỉ</th>
       <th>Số ĐT</th>
-      <th>Mã Chi Nhánh</th>
       <th>Trạng Thái</th>
       <th>Có Tài Khoản?</th>
       <th>Tạo Tài Khoản</th>
@@ -15,7 +14,6 @@
       <td>{{ item.employeeCode }}</td>
       <td>{{ item.driverAddress }}</td>
       <td>{{ item.driverPhoneNumber }}</td>
-      <td>{{ item.branchName }}</td>
       <td>{{ item.driverStatus }}</td>
       <td>{{ item.driverRegister }}</td>
       <td>
