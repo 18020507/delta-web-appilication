@@ -78,19 +78,19 @@
       <div class="modify-form">
         <div class="modify-form-item">
           <h4>Tên Yêu Cầu</h4>
-          <input v-model="requestName" />
+          <input v-model="newRequestName" />
         </div>
         <div class="modify-form-item">
           <h4>Mô Tả</h4>
-          <textarea cols="30" rows="10" v-model="requestDescription"></textarea>
+          <textarea
+            cols="30"
+            rows="10"
+            v-model="newRequestDescription"
+          ></textarea>
         </div>
         <div class="modify-form-item">
           <h4>Nơi Sửa</h4>
-          <select v-model="requestPlace">
-            <option value="BN">Bắc Ninh</option>
-            <option value="HP">Hải Phòng</option>
-            <option value="COOPERATE_SHOP">Gara đối tác</option>
-          </select>
+          <SelectRepairPlace v-model="newRepairPlace" />
         </div>
         <div class="modify-form-item">
           <h4>Ngày Hẹn</h4>
@@ -98,12 +98,7 @@
         </div>
         <div class="modify-form-item">
           <h4>Mức Độ Ưu Tiên</h4>
-          <select>
-            <option value="high">Cao</option>
-            <option value="low">Thấp</option>
-            <option value="maintenance">Bảo dưỡng</option>
-            <option value="emergency">Cứu hộ</option>
-          </select>
+          <SelectRequestLevel v-model="newRequestLevel" />
         </div>
         <div class="modify-form-item">
           <h4>Xe</h4>
@@ -154,6 +149,8 @@ import {
   REQUEST_STATUS,
   REQUEST_STATUS_VN,
 } from "@/utils/const";
+import SelectRepairPlace from "./SelectRepairPlace.vue";
+import SelectRequestLevel from "./SelectRequestLevel.vue";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.css";
 import { defineComponent } from "vue";
@@ -161,7 +158,7 @@ import { getTruckManagementFromTruckId } from "@/api/truck-management/truckManag
 import { useNotification } from "@kyvg/vue3-notification";
 
 export default defineComponent({
-  components: { Multiselect },
+  components: { Multiselect, SelectRepairPlace, SelectRequestLevel },
   props: {
     requestId: {
       type: Number,
@@ -190,6 +187,10 @@ export default defineComponent({
       requestDriver: "",
       requestDriverId: "",
       requestDate: "",
+      newRequestName: "",
+      newRequestDescription: "",
+      newRepairPlace: {},
+      newRequestLevel: {},
       options: [],
       REQUEST_STATUS_VN: REQUEST_STATUS_VN,
     };
@@ -274,7 +275,7 @@ export default defineComponent({
       if (res_update.status == 200) {
         const notification = useNotification();
         notification.notify({
-          title: "Update Success",
+          title: "Cancel Success",
           text: "Hủy yêu cầu thành công!",
           type: "success",
           duration: 3000,
@@ -304,23 +305,27 @@ export default defineComponent({
       const res = await getTruckManagementFromTruckId(value.value);
       const data = res.data.data;
       if (data.length > 0) {
+        this.requestDriverId = data.map((item) => item.driver_id);
+        this.requestReceiverId = data.map((item) => item.user_id);
         this.requestTruckId = data[0].truck_id;
-        this.requestDriver = data[0].driver_name;
-        this.requestDriverId = data[0].driver_id;
+        this.requestDriver = data.map((item) => item.driver_name).join(", ");
       } else {
         this.requestDriver = "";
+        this.requestDriverId = [];
+        this.requestTruckId = "";
       }
     },
     async handleModifyRequest() {
       const payload = {
         request_id: this.requestId,
-        request_name: this.requestName,
-        description: this.requestDescription,
-        repair_place: this.requestPlace,
-        appointment_date: this.requestDate,
-        truck_id: this.requestId,
-        driver_id: this.requestDriverId,
+        ...(this.newRequestName && { request_name: this.newRequestName }),
+        ...(this.newRequestDescription && {description: this.newRequestDescription}),
+        ...(this.newRepairPlace && {repair_place: this.newRepairPlace.value}),
+        ...(this.newRequestLevel && {request_level: this.newRequestLevel.value}),
+        ...(this.requestDate && { appointment_date: this.requestDate }),
+        ...(this.requestTruckId && { truck_id: this.requestTruckId }),
       };
+      console.log(payload);
       const res_update = await updateRequest(payload);
       if (res_update.status == 200) {
         const notification = useNotification();

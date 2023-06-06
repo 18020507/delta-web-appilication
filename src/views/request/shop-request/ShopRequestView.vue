@@ -2,58 +2,210 @@
   <div class="container">
     <div class="title">
       <h2>Danh sách yêu cầu từ phía xưởng</h2>
-    </div>
-    <div class="table-function">
-      <div class="sort">
-        <select v-model="sortValue" @change="handleSortChange">
-          <option value="desc">Ngày tạo giảm dần</option>
-          <option value="asc">Ngày tạo tăng dần</option>
-        </select>
+      <div class="table-function">
+        <input
+          type="date"
+          class="request-date"
+          v-model="form.request_date"
+          @change="handleChange"
+        />
+        <SelectSearchPlate
+          v-model:value="form.truck_id"
+          @update:model-value="handleChange"
+        />
+        <SelectSearchRepairPlace
+          v-model:value="form.request_place"
+          @update:model-value="handleChange"
+        />
+        <SelectSearchStatus
+          v-model:value="form.request_status"
+          @update:model-value="handleChange"
+        />
       </div>
-      <div class="create-request">
-        <span>Tạo yêu cầu</span>
-        <button @click="openPopUp()">
-          <font-awesome-icon icon="fa-solid fa-plus"></font-awesome-icon>
-        </button>
-      </div>
     </div>
+    <div class="create-request">
+      <a-button type="primary" @click="openPopUp()"> Tạo yêu cầu </a-button>
+    </div>
+
     <div class="table">
-      <TableRepairShopRequestView ref="tableRef" :sortValue="sortValue" />
+      <TableRepairShopRequestView ref="tableRef" :form="form" />
     </div>
-    <div v-if="showPopup" class="popup">
-      <div class="popup-content">
-        <PopupCreateRepairShopRequest @createRequest="handleCreateRequest" />
-        <button @click="showPopup = false">Close</button>
+
+    <a-modal
+      v-model:visible="modalVisible"
+      title="Tạo yêu cầu gọi xe"
+      @ok="handleModalOk"
+      @cancel="handleModalCancel"
+      :width="800"
+    >
+      <div class="modal-content">
+        <div class="request-item">
+          <b>Tên Yêu Cầu:</b>
+          <input v-model="requestName" />
+        </div>
+        <div class="request-item">
+          <b>Mô Tả:</b>
+          <textarea cols="30" rows="5" v-model="requestDescription"></textarea>
+        </div>
+        <div class="request-item">
+          <b>Nơi Sửa:</b>
+          <SelectRepairPlace v-model:value="requestRepairPlace" />
+        </div>
+        <div class="request-item">
+          <b>Ngày Hẹn:</b>
+          <input type="date" v-model="requestAppointmentDate" />
+        </div>
+        <div class="request-item">
+          <b>Mức độ ưu tiên:</b>
+          <SelectRequestLevel v-model:value="requestLevel" />
+        </div>
+        <div class="request-item">
+          <b>Chọn xe:</b>
+          <multiselect
+            v-model="requestTruck"
+            :options="options"
+            :close-on-select="true"
+            :clear-on-select="false"
+            placeholder="Select one"
+            label="label"
+            track-by="label"
+            @update:modelValue="handleTruckChange"
+          >
+          </multiselect>
+        </div>
+        <div class="request-item">
+          <b>Lái Xe:</b>
+          <input v-model="requestDriver" disabled="disabled" />
+        </div>
       </div>
-    </div>
+    </a-modal>
   </div>
 </template>
 
 <script>
 import { defineComponent } from "vue";
+import { Button, Modal } from "ant-design-vue";
 import TableRepairShopRequestView from "./components/TableRepairShopRequestView.vue";
-import PopupCreateRepairShopRequest from "./components/PopupCreateRepairShopRequest.vue";
+import SelectSearchPlate from "../components/SelectSearchPlate.vue";
+import SelectSearchRepairPlace from "../components/SelectSearchRepairPlace.vue";
+import SelectSearchStatus from "../components/SelectSearchStatus.vue";
+import SelectRepairPlace from "../components/SelectRepairPlace.vue";
+import SelectRequestLevel from "../components/SelectRequestLevel.vue";
+import { getTruckManagementFromTruckId } from "@/api/truck-management/truckManagement";
+import { createRequest, getLicensePlate } from "@/api/request/request";
+import Multiselect from "vue-multiselect";
+import "vue-multiselect/dist/vue-multiselect.css";
+import { REQUEST_STATUS, REQUEST_TYPE } from "@/utils/const";
+import { useUserStore } from "@/store/userStore";
+import { useNotification } from "@kyvg/vue3-notification";
 
 export default defineComponent({
-  components: { TableRepairShopRequestView, PopupCreateRepairShopRequest },
+  components: {
+    TableRepairShopRequestView,
+    SelectSearchPlate,
+    SelectSearchRepairPlace,
+    SelectSearchStatus,
+    AButton: Button,
+    AModal: Modal,
+    SelectRepairPlace,
+    Multiselect,
+    SelectRequestLevel,
+  },
   data() {
     return {
-      showPopup: false,
-      sortValue: "desc",
+      form: {
+        request_date: undefined,
+        truck_id: undefined,
+        request_place: undefined,
+        request_status: undefined,
+      },
+      modalVisible: false,
+      options: [],
+      requestName: "",
+      requestDescription: "",
+      requestRepairPlace: {},
+      requestAppointmentDate: "",
+      requestLevel: {},
+      requestTruck: "",
+      requestTruckId: "",
+      requestDriver: "",
+      requestDriverId: [],
     };
   },
+  setup() {
+    const userStore = useUserStore();
+    return { userStore };
+  },
+  async created() {
+    const res_license_plate = await getLicensePlate();
+    this.options = res_license_plate.data.data?.map((item) => ({
+      label: item.truck_license_plate,
+      value: item.truck_id,
+    }));
+    this.clientId = this.userStore.getUserInfo().id;
+  },
   methods: {
-    openPopUp() {
-      this.showPopup = true;
-    },
-    handleSortChange() {
+    async handleChange() {
       this.$refs.tableRef?.handleFetch();
     },
-    async handleCreateRequest(statusCode) {
-      if (statusCode === 200) {
-        this.showPopup = false;
-        this.$refs.tableRef?.handleFetch();
+    openPopUp() {
+      this.modalVisible = true;
+    },
+    async handleTruckChange(value) {
+      const res = await getTruckManagementFromTruckId(value.value);
+      const data = res.data.data;
+      if (data.length > 0) {
+        this.requestDriverId = data.map((item) => item.driver_id);
+        this.requestReceiverId = data.map((item) => item.user_id);
+        this.requestTruckId = data[0].truck_id;
+        this.requestDriver = data.map((item) => item.driver_name).join(", ");
+      } else {
+        this.requestDriver = "";
+        this.requestDriverId = [];
+        this.requestTruckId = "";
       }
+    },
+    async handleModalOk() {
+      const notification = useNotification();
+      const payload = {
+        create_by: this.userStore.getUserInfo().id,
+        request_type: REQUEST_TYPE.REPAIR_SHOP,
+        request_name: this.requestName,
+        appointment_date: this.requestAppointmentDate,
+        truck_id: this.requestTruckId,
+        driver_id: this.requestDriverId,
+        receiver_id: this.requestReceiverId,
+        description: this.requestDescription,
+        request_level: this.requestLevel.value,
+        status: REQUEST_STATUS.PENDING,
+        repair_place: this.requestRepairPlace.value,
+      };
+      const isPayloadValid = Object.values(payload).every(
+        (value) => value !== undefined
+      );
+      if (isPayloadValid) {
+        const res = await createRequest(payload);
+        if (res.status == 200) {
+          notification.notify({
+            title: "Create Success",
+            text: "Tạo yêu cầu thành công!",
+            type: "success",
+            duration: 3000,
+          });
+          this.$refs.tableRef?.handleFetch();
+        }
+      } else {
+        notification.notify({
+          title: "Invalid Payload",
+          text: "Hãy điền đầy đủ các trường thông tin",
+          type: "error",
+          duration: 3000,
+        });
+      }
+      this.modalVisible = false;
+    },
+    handleModalCancel() {
+      this.modalVisible = false;
     },
   },
 });
@@ -67,46 +219,52 @@ export default defineComponent({
   flex: 1;
 }
 
-.table-function {
+.title {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
 }
 
-.create-request span {
+.table-function {
+  display: flex;
+  flex-direction: row;
+  width: 50vw;
+  gap: 10px;
+  align-items: center;
+}
+
+.modal-content {
+  height: 400px;
+  overflow-y: auto;
+}
+
+.request-date {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  color: gray;
+  font-weight: bold;
+}
+.create-request {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.request-item {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  margin-bottom: 20px;
   margin-right: 20px;
 }
 
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1;
+.request-item b {
+  margin-bottom: 10px;
 }
 
-.popup-content {
-  background-color: #fff;
-  padding: 20px;
-}
-
-select {
-  text-align: center;
-  font-weight: bold;
-  padding: 10px 25px;
-  border-radius: 5px;
-}
-
-option {
-  background-color: white;
-  color: black;
-  text-align: center;
-  font-weight: bold;
+.request-item textarea {
+  resize: none;
 }
 </style>

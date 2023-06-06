@@ -24,14 +24,10 @@ import App from "./App.vue";
 import { addAuthHeader } from "./utils/api.util";
 import Notifications from "@kyvg/vue3-notification";
 import { setupStore } from "@/store";
+import "ant-design-vue/dist/antd.css";
 
 axios.defaults.baseURL = `${process.env.VUE_APP_BASE_API_URL}`;
 addAuthHeader();
-// if (localStorage.getItem("access_token")) {
-//   axios.defaults.headers.common[
-//     "Authorization"
-//   ] = `Bearer ${localStorage.getItem("access_token")}`;
-// }
 
 library.add(
   faLock,

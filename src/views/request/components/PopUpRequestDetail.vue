@@ -8,7 +8,7 @@
       <div class="request-summary-item">
         <b>Miêu Tả:</b> {{ requestDescription }}
       </div>
-      <div  v-if="requestStatus" class="request-summary-item">
+      <div v-if="requestStatus" class="request-summary-item">
         <b>Trạng Thái:</b> {{ requestStatus }}
       </div>
       <div v-if="requestLevel" class="request-summary-item">
@@ -82,7 +82,9 @@
       </div>
     </div>
     <div
-      v-if="showListButtonFunction && requestStatus == REQUEST_STATUS_VN.PENDING"
+      v-if="
+        showListButtonFunction && requestStatus == REQUEST_STATUS_VN.PENDING
+      "
       class="list-button-function"
     >
       <button class="accept-button" @click="handleAccept">Phê Duyệt</button>
@@ -93,15 +95,28 @@
       <div class="accept-form">
         <div>
           <h4>Địa điểm sửa chữa</h4>
+          <p v-show="!chooseRepairPlace" class="required-field">
+            bắt buộc điền
+          </p>
           <SelectRepairPlace v-model:value="chooseRepairPlace" />
         </div>
         <div>
           <h4>Mức độ khẩn cấp</h4>
+          <p v-show="!chooseRequestLevel" class="required-field">
+            bắt buộc điền
+          </p>
           <SelectRequestLevel v-model:value="chooseRequestLevel" />
         </div>
         <div>
           <h4>Ngày hẹn</h4>
-          <input v-model="chooseAppointmentDate" type="date" />
+          <p v-show="!chooseAppointmentDate" class="required-field">
+            bắt buộc điền
+          </p>
+          <input
+            v-model="chooseAppointmentDate"
+            type="date"
+            class="request-date"
+          />
         </div>
       </div>
       <div class="accept-form-button-container">
@@ -114,6 +129,7 @@
     <div v-if="!showRejectForm" class="reject-form-container">
       <div class="reject-form">
         <h4>Lý Do Hủy</h4>
+        <p v-show="!rejectForm" class="required-field">bắt buộc điền</p>
         <textarea v-model="rejectForm" cols="30" rows="10"></textarea>
       </div>
       <div class="accept-form-button-container">
@@ -191,8 +207,8 @@ export default defineComponent({
       showListButtonFunction: true,
       showAcceptForm: true,
       showRejectForm: true,
-      chooseRepairPlace: "",
-      chooseRequestLevel: "",
+      chooseRepairPlace: {},
+      chooseRequestLevel: {},
       chooseAppointmentDate: "",
       rejectForm: "",
       REQUEST_STATUS_VN: REQUEST_STATUS_VN,
@@ -260,9 +276,32 @@ export default defineComponent({
       this.showRejectForm = false;
     },
     async handleAcceptRequest() {
+      const notification = useNotification();
       const appointmentDateValue = this.chooseAppointmentDate;
-      const repairPlaceValue = this.chooseRepairPlace;
-      const requestLevelValue = this.chooseRequestLevel;
+      const repairPlaceValue = this.chooseRepairPlace?.value ?? undefined;
+      const requestLevelValue = this.chooseRequestLevel?.value ?? undefined;
+
+      if (!appointmentDateValue || !repairPlaceValue || !requestLevelValue) {
+        const missingFields = [];
+        if (!appointmentDateValue) {
+          missingFields.push("ngày hẹn");
+        }
+        if (!repairPlaceValue) {
+          missingFields.push("nơi sửa");
+        }
+        if (!requestLevelValue) {
+          missingFields.push("mức độ");
+        }
+
+        notification.notify({
+          title: "Hãy điền đủ thông tin",
+          text: `Thông tin ${missingFields.join(" và ")} còn thiếu.`,
+          type: "warning",
+          duration: 3000,
+        });
+        return;
+      }
+
       const payload = {
         request_id: this.requestId,
         appointment_date: appointmentDateValue,
@@ -273,7 +312,6 @@ export default defineComponent({
 
       const res_update = await updateRequest(payload);
       if (res_update.status == 200) {
-        const notification = useNotification();
         notification.notify({
           title: "Update Success",
           text: "Cập nhật yêu cầu thành công!",
@@ -284,7 +322,19 @@ export default defineComponent({
       }
     },
     async handleRejectRequest() {
+      const notification = useNotification();
       const rejectReason = this.rejectForm;
+
+      if (!rejectReason) {
+        notification.notify({
+          title: "Hãy điền đủ thông tin",
+          text: `Lý do hủy còn thiếu.`,
+          type: "warning",
+          duration: 3000,
+        });
+        return;
+      }
+
       const payload = {
         request_id: this.requestId,
         reject_reason: rejectReason,
@@ -293,7 +343,13 @@ export default defineComponent({
 
       const res_update = await updateRequest(payload);
       if (res_update.status == 200) {
-        console.log("success");
+        notification.notify({
+          title: "Reject Success",
+          text: "Hủy yêu cầu thành công!",
+          type: "success",
+          duration: 3000,
+        });
+        this.$emit("updateRequest", res_update.status);
         this.$emit("updateRequest", res_update.status);
       }
     },
@@ -467,5 +523,18 @@ export default defineComponent({
   padding: 10px;
   font-weight: bold;
   background-color: lightgreen;
+}
+
+.request-date {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  color: gray;
+  font-weight: bold;
+}
+
+.required-field {
+  font-size: 10px;
+  color: red;
 }
 </style>

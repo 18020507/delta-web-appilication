@@ -1,7 +1,7 @@
 <template>
   <form class="login-form">
     <span class="login-form-title"> Admin Login </span>
-
+    <p v-show="!username" class="required-field">Username is required</p>
     <div class="wrap-input">
       <input
         class="input"
@@ -9,13 +9,14 @@
         type="text"
         name="username"
         placeholder="Username"
+        required
       />
       <span class="focus-input"></span>
       <span class="symbol-input">
         <font-awesome-icon icon="fa-solid fa-user" />
       </span>
     </div>
-
+    <p v-show="!password" class="required-field">Password is required</p>
     <div class="wrap-input">
       <input
         class="input"
@@ -23,6 +24,7 @@
         type="password"
         name="pass"
         placeholder="Password"
+        required
       />
       <span class="focus-input"></span>
       <span class="symbol-input">
@@ -67,12 +69,31 @@ export default defineComponent({
     async getLogin(event) {
       event.preventDefault();
       const { username, password } = this;
+
+      const notification = useNotification();
+
+      if (!username || !password) {
+        const missingFields = [];
+        if (!username) {
+          missingFields.push("tên đăng nhập");
+        }
+        if (!password) {
+          missingFields.push("mật khẩu");
+        }
+
+        notification.notify({
+          title: "Hãy điền đủ thông tin",
+          text: `Thông tin ${missingFields.join(" và ")} còn thiếu.`,
+          type: "warning",
+          duration: 3000,
+        });
+        return;
+      }
       const response = await login({
         username,
         password,
       });
       if (response.success) {
-        const notification = useNotification();
         notification.notify({
           title: "Login Success",
           text: "You have successfully logged in!",
@@ -213,5 +234,10 @@ export default defineComponent({
   font-size: 13px;
   line-height: 1.5;
   color: #666666;
+}
+
+.required-field {
+  font-size: 10px;
+  color: red;
 }
 </style>

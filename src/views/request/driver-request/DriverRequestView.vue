@@ -2,44 +2,75 @@
   <div class="container">
     <div class="title">
       <h2>Danh sách yêu cầu từ phía lái xe</h2>
-    </div>
-    <div class="table-function">
-      <div class="sort">
-        <select v-model="sortValue" @change="handleSortChange">
-          <option value="desc">Ngày tạo giảm dần</option>
-          <option value="asc">Ngày tạo tăng dần</option>
-        </select>
+      <div class="table-function">
+        <input
+          type="date"
+          class="request-date"
+          v-model="form.request_date"
+          @change="handleChange"
+        />
+        <SelectSearchDriver
+          v-model:value="form.driver_id"
+          @update:model-value="handleChange"
+        />
+        <SelectSearchPlate
+          v-model:value="form.truck_id"
+          @update:model-value="handleChange"
+        />
+        <SelectSearchRepairPlace
+          v-model:value="form.request_place"
+          @update:model-value="handleChange"
+        />
+        <SelectSearchStatus
+          v-model:value="form.request_status"
+          @update:model-value="handleChange"
+        />
       </div>
     </div>
+
     <div class="table">
-      <TableDriverRequestView
-        ref="tableRef"
-        :sortValue="sortValue"
-        requestType="driver"
-      />
+      <TableDriverRequestView ref="tableRef" :form="form" />
     </div>
   </div>
 </template>
 
 <script>
 import { defineComponent } from "vue";
+import SelectSearchDriver from "../components/SelectSearchDriver.vue";
 import TableDriverRequestView from "./components/TableDriverRequestView.vue";
+import SelectSearchPlate from "../components/SelectSearchPlate.vue";
+import SelectSearchRepairPlace from "../components/SelectSearchRepairPlace.vue";
+import SelectSearchStatus from "../components/SelectSearchStatus.vue";
 export default defineComponent({
-  components: { TableDriverRequestView },
+  components: {
+    TableDriverRequestView,
+    SelectSearchDriver,
+    SelectSearchPlate,
+    SelectSearchRepairPlace,
+    SelectSearchStatus,
+  },
   data() {
     return {
-      sortValue: "desc",
+      form: {
+        request_date: undefined,
+        driver_id: undefined,
+        truck_id: undefined,
+        request_place: undefined,
+        request_status: undefined,
+      },
     };
   },
   methods: {
-    handleSortChange() {
+    async handleChange() {
+      console.log(this.form)
       this.$refs.tableRef?.handleFetch();
     },
   },
 });
 </script>
 
-<style scoped>
+<style lang="css" scoped>
+@import "~ant-design-vue/dist/antd.css";
 .container {
   margin-left: 30px;
   margin-top: 20px;
@@ -47,23 +78,26 @@ export default defineComponent({
   flex: 1;
 }
 
-.table-function {
+.title {
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   margin-bottom: 30px;
 }
 
-select {
-  text-align: center;
-  font-weight: bold;
-  padding: 10px 25px;
-  border-radius: 5px;
+.table-function {
+  display: flex;
+  flex-direction: row;
+  width: 50vw;
+  gap: 10px;
+  align-items: center;
 }
 
-option {
-  background-color: white;
-  color: black;
-  text-align: center;
+.request-date {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  color: gray;
   font-weight: bold;
 }
 </style>

@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <table>
     <tr class="table-head">
       <th>Hãng xe</th>
@@ -95,7 +95,6 @@ td {
 tr {
   height: 38px;
   text-align: center;
-  font-weight: bold;
 }
 
 table {
@@ -118,5 +117,146 @@ table {
   justify-content: space-between;
   align-items: center;
   margin-top: 20px;
+}
+</style> -->
+<template>
+  <div class="table-container">
+    <a-table
+      :columns="columns"
+      :data-source="data"
+      :scroll="{ y: 450 }"
+      :pagination="false"
+      @resizeColumn="handleResizeColumn"
+    >
+    </a-table>
+    <div class="pagination-container">
+      <a-pagination
+        v-model="paginationConfig.current"
+        :total="paginationConfig.total"
+        :show-quick-jumper="paginationConfig.showQuickJumper"
+        :show-size-changer="paginationConfig.showSizeChanger"
+        @change="handlePaginationChange"
+      />
+    </div>
+  </div>
+</template>
+
+<script>
+import { defineComponent } from "vue";
+import { Table, Pagination } from "ant-design-vue";
+import { getListTruck } from "@/api/truck-management/truckManagement";
+
+export default defineComponent({
+  components: {
+    ATable: Table,
+    APagination: Pagination,
+  },
+  data() {
+    return {
+      data: [],
+      columns: [
+        {
+          title: "Hãng xe",
+          width: 100,
+          dataIndex: "manufacturer",
+          fixed: "left",
+        },
+        {
+          title: "Số máy",
+          width: 150,
+          dataIndex: "engineNumber",
+          ellipsis: true,
+        },
+        {
+          title: "Số khung",
+          dataIndex: "frameNumber",
+          width: 150,
+          ellipsis: true,
+        },
+        {
+          title: "Biển số",
+          dataIndex: "licensePlate",
+          width: 100,
+          ellipsis: true,
+        },
+        {
+          title: "Ngày đăng ký",
+          dataIndex: "dateRegistration",
+          width: 150,
+          ellipsis: true,
+        },
+        {
+          title: "Kích thước",
+          dataIndex: "size",
+          width: 150,
+          ellipsis: true,
+        },
+        {
+          title: "Trạng thái",
+          key: "status",
+          fixed: "right",
+          width: 100,
+        },
+      ],
+      paginationConfig: {
+        current: 1,
+        pageSize: 10,
+        total: 0,
+        showQuickJumper: true,
+        showSizeChanger: false,
+      },
+    };
+  },
+  async mounted() {
+    await this.handleFetch();
+  },
+  methods: {
+    async handleFetch() {
+      try {
+        const { current, pageSize } = this.paginationConfig;
+        const payload = {
+          page_size: pageSize,
+          page: current,
+          sort_by: "id",
+          order: "desc",
+        };
+        const res = await getListTruck(payload);
+        this.data = res.data.data.map((item, index) => ({
+          key: index,
+          manufacturer: item.manufacturer,
+          engineNumber: item.engine_number,
+          frameNumber: item.frame_number,
+          licensePlate: item.license_plate,
+          dateRegistration: item.date_registration,
+          size: item.size,
+          status: true,
+        }));
+        this.paginationConfig.total = res.data.metadata.total_items;
+      } catch (error) {
+        console.error("Failed to fetch data from API:", error);
+      }
+    },
+    handleResizeColumn(width, column) {
+      column.width = width;
+    },
+    handlePaginationChange(currentPage) {
+      this.paginationConfig.current = currentPage;
+      this.handleFetch();
+    },
+  },
+});
+</script>
+
+<style lang="css">
+@import "~ant-design-vue/dist/antd.css";
+.table-container {
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.pagination-container {
+  margin-top: 16px;
+  align-self: flex-end;
 }
 </style>

@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="sidebar">
     <div
       v-for="(child, index) in children"
@@ -136,4 +136,107 @@ export default defineComponent({
 .active {
   background-color: #cfe6ff;
 }
+</style> -->
+<template>
+  <div class="sidebar">
+    <a-menu
+      v-model:selectedKeys="selectedKeys"
+      style="width: 256px"
+      mode="inline"
+      :open-keys="openKeys"
+      @openChange="onOpenChange"
+    >
+      <a-menu-item key="1">
+        <router-link to="/home">
+          <b>Trang chủ</b>
+        </router-link>
+      </a-menu-item>
+      <a-sub-menu key="sub2">
+        <template #title><b>Danh sách yêu cầu</b></template>
+        <a-menu-item key="5">
+          <router-link to="/driver-request">Yêu cầu lái xe</router-link>
+        </a-menu-item>
+        <a-menu-item key="6">
+          <router-link to="/repair-place-request">Yêu cầu xưởng</router-link>
+        </a-menu-item>
+      </a-sub-menu>
+      <a-sub-menu key="sub4">
+        <template #title><b>Quản lý tài sản</b></template>
+        <a-menu-item key="9">
+          <router-link to="/driver-management">Danh sách lái xe</router-link>
+        </a-menu-item>
+        <a-menu-item key="10">
+          <router-link to="/truck-management">Danh sách xe</router-link>
+        </a-menu-item>
+        <a-menu-item key="11">
+          <router-link to="/handover-management">
+            Bàn giao xe - lái xe
+          </router-link>
+        </a-menu-item>
+        <a-menu-item key="12">
+          <router-link to="/truck-registration-management">
+            Đăng kiểm
+          </router-link>
+        </a-menu-item>
+        <a-menu-item key="13">
+          <router-link to="/generator-management">Máy phát</router-link>
+        </a-menu-item>
+      </a-sub-menu>
+    </a-menu>
+  </div>
+</template>
+
+<script>
+import { defineComponent, reactive, toRefs } from "vue";
+import { Menu, SubMenu, MenuItem } from "ant-design-vue";
+import {
+  MailOutlined,
+  AppstoreOutlined,
+  SettingOutlined,
+} from "@ant-design/icons-vue";
+
+export default defineComponent({
+  components: {
+    AMenu: Menu,
+    ASubMenu: SubMenu,
+    AMenuItem: MenuItem,
+  },
+  setup() {
+    const state = reactive({
+      rootSubmenuKeys: ["sub2", "sub4"],
+      openKeys: [],
+      selectedKeys: [],
+    });
+
+    const mailOutlinedIcon = MailOutlined;
+    const appstoreOutlinedIcon = AppstoreOutlined;
+    const settingOutlinedIcon = SettingOutlined;
+
+    const onOpenChange = (openKeys) => {
+      const latestOpenKey = openKeys.find(
+        (key) => state.openKeys.indexOf(key) === -1
+      );
+      if (state.rootSubmenuKeys.indexOf(latestOpenKey) === -1) {
+        state.openKeys = openKeys;
+      } else {
+        state.openKeys = latestOpenKey ? [latestOpenKey] : [];
+      }
+    };
+
+    return {
+      ...toRefs(state),
+      mailOutlinedIcon,
+      appstoreOutlinedIcon,
+      settingOutlinedIcon,
+      onOpenChange,
+    };
+  },
+});
+</script>
+
+<style lang="css">
+.sidebar {
+  background-color: #ffffff;
+}
+@import "~ant-design-vue/dist/antd.css";
 </style>
