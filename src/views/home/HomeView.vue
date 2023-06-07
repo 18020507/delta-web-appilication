@@ -7,15 +7,7 @@
       </div>
     </div>
     <div class="chart-column">
-      <div class="title-chart">
-        Số lượng yêu cầu trong tháng
-        <select>
-          <option value="">Tháng 1</option>
-          <option value="">Tháng 2</option>
-          <option value="">Tháng 3</option>
-          <option value="">Tháng 4</option>
-        </select>
-      </div>
+      <div class="title-chart">Số lượng yêu cầu trong tháng</div>
 
       <div class="chart-wrapper">
         <v-chart class="chart" :option="optionChart2" />
@@ -36,6 +28,7 @@ import {
   GridComponent,
 } from "echarts/components";
 import VChart, { THEME_KEY } from "vue-echarts";
+import { getStatisticByMonth, getStatisticSummary } from "@/api/home/home";
 
 use([
   CanvasRenderer,
@@ -98,13 +91,13 @@ export default defineComponent({
             name: "Yêu Cầu Lái Xe",
             type: "bar",
             barWidth: 10,
-            data: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110],
+            data: [],
           },
           {
             name: "Yêu Cầu Xưởng",
             type: "bar",
             barWidth: 10,
-            data: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+            data: [],
           },
         ],
       },
@@ -121,13 +114,10 @@ export default defineComponent({
           orient: "horizontal",
           bottom: "bottom",
           data: [
-            "Yêu cầu Lái Xe",
-            "Yêu Cầu Xưởng",
             "Yêu Cầu Hoàn Thành",
             "Yêu Cầu Đang Xử Lý",
             "Yêu Cầu Từ Chối",
-            "Yêu Cầu Sửa Tại Gara",
-            "Yêu Cầu Sửa Ngoài",
+            "Yêu Cầu Đang Chờ",
           ],
         },
         grid: {
@@ -146,43 +136,65 @@ export default defineComponent({
         },
         series: [
           {
-            name: "Yêu cầu Lái Xe",
-            type: "bar",
-            data: [100],
-          },
-          {
-            name: "Yêu Cầu Xưởng",
-            type: "bar",
-            data: [20],
-          },
-          {
             name: "Yêu Cầu Hoàn Thành",
             type: "bar",
-            data: [85],
+            barWidth: 30,
+            data: [],
           },
           {
             name: "Yêu Cầu Đang Xử Lý",
             type: "bar",
-            data: [10],
+            barWidth: 30,
+            data: [],
           },
           {
             name: "Yêu Cầu Từ Chối",
             type: "bar",
-            data: [20],
+            barWidth: 30,
+            data: [],
           },
           {
-            name: "Yêu Cầu Sửa Tại Gara",
+            name: "Yêu Cầu Đang Chờ",
             type: "bar",
-            data: [50],
-          },
-          {
-            name: "Yêu Cầu Sửa Ngoài",
-            type: "bar",
-            data: [60],
+            barWidth: 30,
+            data: [],
           },
         ],
       },
     };
+  },
+  methods: {
+    async fetchChartData() {
+      const response = await getStatisticSummary();
+      const data = response.data.data;
+      const option = { ...this.option };
+      option.series[0].data = Object.values(data).map((item) => item.driver);
+      option.series[1].data = Object.values(data).map(
+        (item) => item.repair_shop
+      );
+      this.option = option;
+
+      const currentMonth = new Date().getMonth() + 1;
+      const response_by_month = await getStatisticByMonth(currentMonth);
+
+      const statisticData = response_by_month.data.data;
+      const monthNames = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+      ];
+      const monthName = monthNames[currentMonth - 1];
+
+      const optionChart2 = { ...this.optionChart2 };
+      optionChart2.xAxis.data = [monthName];
+
+      optionChart2.series[0].data = [statisticData.finish];
+      optionChart2.series[1].data = [statisticData.processing];
+      optionChart2.series[2].data = [statisticData.reject];
+      optionChart2.series[3].data = [statisticData.pending];
+    },
+  },
+  mounted() {
+    this.fetchChartData();
   },
 });
 </script>
