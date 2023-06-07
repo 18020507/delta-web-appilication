@@ -108,7 +108,7 @@ export default defineComponent({
         {
           title: "Địa chỉ",
           dataIndex: "driverAddress",
-          width: 150,
+          width: 250,
           ellipsis: true,
         },
         {
@@ -174,8 +174,8 @@ export default defineComponent({
           order: "desc",
         };
         const res = await getListDriver(payload);
-        this.data = res.data.data.map((item, index) => ({
-          key: index,
+        this.data = res.data.data.map((item) => ({
+          key: item.id,
           driverName: item.full_name,
           employeeCode: item.employee_code,
           driverAddress: item.address,

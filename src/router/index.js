@@ -8,7 +8,6 @@ import ShopRequestView from "@/views/request/shop-request/ShopRequestView.vue";
 import DriverManagementView from "@/views/management/driver-management/DriverManagementView.vue";
 import TruckManagementView from "@/views/management/truck-management/TruckManagementView.vue";
 import HandoverManagementView from "@/views/management/handover-management/HandoverManagementView.vue";
-import TruckRegistrationManagementView from "@/views/management/truck-registration/TruckRegistrationView.vue";
 import GeneratorManagementView from "@/views/management/generator-management/GeneratorManagementView.vue";
 import AccountDetailView from "@/views/account/AccountDetailView.vue";
 
@@ -73,13 +72,6 @@ const TruckHandoverManagement = [
   },
 ];
 
-const TruckRegistration = [
-  {
-    path: "/truck-registration-management",
-    component: TruckRegistrationManagementView,
-  },
-];
-
 const Generator = [
   {
     path: "/generator-management",
@@ -106,7 +98,6 @@ const routes = [
   ...driverManagement,
   ...truckManagement,
   ...TruckHandoverManagement,
-  ...TruckRegistration,
   ...Generator,
   ...Account,
 ];
