@@ -29,3 +29,13 @@ export const createTruckManagement = async (payload) => {
   const result = await api("post", "/api/v1/truck_management", payload);
   return result;
 };
+
+export const getTruckDetail = async (truck_id) => {
+  const result = await api("get", `/api/v1/truck/${truck_id}`);
+  return result;
+};
+
+export const updateTruckById = async (payload) => {
+  const result = await api("post", "/api/v1/truck_by_id", payload);
+  return result;
+};

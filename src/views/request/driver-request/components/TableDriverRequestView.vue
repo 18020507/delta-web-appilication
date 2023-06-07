@@ -593,11 +593,6 @@ table {
             />
           </div>
         </div>
-        <!-- <div class="accept-form-button-container">
-          <button class="accept-form-button" @click="handleAcceptRequest">
-            Cập nhật yêu cầu
-          </button>
-        </div> -->
       </div>
 
       <div v-if="!showRejectForm" class="reject-form-container">
@@ -605,11 +600,6 @@ table {
           <h4>Lý Do Hủy</h4>
           <textarea v-model="rejectForm" cols="10" rows="10"></textarea>
         </div>
-        <!-- <div class="accept-form-button-container">
-          <button class="accept-form-button" @click="handleRejectRequest">
-            Cập nhật yêu cầu
-          </button>
-        </div> -->
       </div>
 
       <div

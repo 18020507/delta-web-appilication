@@ -174,11 +174,6 @@ export default defineComponent({
           </router-link>
         </a-menu-item>
         <a-menu-item key="12">
-          <router-link to="/truck-registration-management">
-            Đăng kiểm
-          </router-link>
-        </a-menu-item>
-        <a-menu-item key="13">
           <router-link to="/generator-management">Máy phát</router-link>
         </a-menu-item>
       </a-sub-menu>
