@@ -218,8 +218,8 @@ export default defineComponent({
           type: "success",
           duration: 3000,
         });
+        this.handleFetch();
       }
-      this.handleFetch();
       this.modalVisible = false;
     },
     handleModalCancel() {

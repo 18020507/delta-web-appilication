@@ -113,9 +113,9 @@ export default defineComponent({
             type: "success",
             duration: 3000,
           });
+          this.$refs.tableRef?.handleFetch();
         }
       }
-      this.$refs.tableRef?.handleFetch();
       this.modalVisible = false;
     },
     handleModalCancel() {
