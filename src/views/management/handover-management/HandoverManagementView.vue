@@ -93,12 +93,6 @@ export default defineComponent({
     openPopUp() {
       this.modalVisible = true;
     },
-    async handleCreateTruckManagement(statusCode) {
-      if (statusCode === 200) {
-        this.showPopup = false;
-        this.$refs.tableRef?.handleFetch();
-      }
-    },
     addMultiselect() {
       this.multiselectCount++;
     },
@@ -121,6 +115,7 @@ export default defineComponent({
           });
         }
       }
+      this.$refs.tableRef?.handleFetch();
       this.modalVisible = false;
     },
     handleModalCancel() {

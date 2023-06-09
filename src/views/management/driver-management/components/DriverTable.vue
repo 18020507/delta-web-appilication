@@ -219,6 +219,7 @@ export default defineComponent({
           duration: 3000,
         });
       }
+      this.handleFetch();
       this.modalVisible = false;
     },
     handleModalCancel() {
