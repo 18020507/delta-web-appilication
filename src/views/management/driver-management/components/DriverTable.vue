@@ -75,6 +75,7 @@ import {
   getListDriver,
 } from "@/api/driver-management/driverManagement";
 import { useNotification } from "@kyvg/vue3-notification";
+import { getListRole } from "@/api/role/role";
 
 export default defineComponent({
   components: {
@@ -201,8 +202,11 @@ export default defineComponent({
       this.modalVisible = true;
     },
     async handleModalOk() {
+      const roleResponse  = await getListRole();
+      const roles = roleResponse.data.data;
+      const driverRole = roles.find(role => role.role_name === "driver");
       const payload = {
-        role_id: 3,
+        role_id: driverRole.id,
         full_name: this.driverName,
         user_name: this.localUsername,
         password: this.localPassword,
